@@ -131,6 +131,8 @@ extern u8 swchflag;
 
 u8 openflag; //开机
 
+u8 rftime; //每30s开一次PA
+
 int main(void)
 {
 	SYS_CLK_UP();  //设置系统时钟为48M

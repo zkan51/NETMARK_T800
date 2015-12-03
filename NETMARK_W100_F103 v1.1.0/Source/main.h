@@ -152,6 +152,7 @@ extern u8 gps_led_on;
 extern u8 openflag;
 
 extern u8 battery;
+extern u8 rftime;
 
 #define SEND_INTERVAL                        ((uint16_t)9000)
 #define BATTERYLEVEL 4
