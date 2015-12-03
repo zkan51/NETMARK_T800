@@ -301,7 +301,7 @@ void Usart1GetCommand(void)  //串口1接收
 		{
 			case 0x01://向网位仪写船名
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					if(code_flag2==on)  //加密情况
 					{
@@ -345,7 +345,7 @@ void Usart1GetCommand(void)  //串口1接收
 			break;
 			case 0x02://向网位仪写MMSI号
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					if(code_flag2==on)   //加密情况
 					{
@@ -396,17 +396,9 @@ void Usart1GetCommand(void)  //串口1接收
 			}
 			break;
 			
-			/*case 0x03://注入钥匙
-			{
-				for(i=0;i<18;i++)
-					com3_txbuf[i] = com1_rxbuf[i];
-				sendtocom3();
-			}
-			break;*/
-			
 			case 0x04://向网位仪读取船名
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					tx1buf[0] = '$'; tx1buf[1] = 0x04;
 
@@ -419,7 +411,7 @@ void Usart1GetCommand(void)  //串口1接收
 				
 			case 0x05://向网位仪读取MMSI号
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					tx1buf[0] = '$';tx1buf[1] = 0x05;
 					for(i=0;i<4;i++)
@@ -432,109 +424,9 @@ void Usart1GetCommand(void)  //串口1接收
 			}
 			break;
 			
-			/*case 0x06://读取钥匙
-			{
-				for(i=0;i<18;i++)
-					com3_txbuf[i] = com1_rxbuf[i];
-				sendtocom3();
-			}
-			break;
-			
-			 --modified by Wangsi
-			case 0x0A://向网位仪加密
-			{
-				if(charging_flag == on)
-				{
-					Is_Coded();
-					if(code_flag2==off)          //若设备未加密，加密
-					{
-						for(i=0;i<6;i++)
-						CodeNum[i] = com1_rxbuf[i+2];
-						WriteflashCode();
-						ReadflashCode();
-						
-						tx1buf[0] = '$'; tx1buf[1]=0x0A; tx1buf[2]=0x01;  //加密成功
-						for(i=3;i<18;i++)
-							tx1buf[i]=0x00;
-						
-						code_flag2=on;      //设置网位仪加密状态
-						code_flag1=off;
-						com1sendback();
-					}
-					else                     //若设备已加密，请勿重复加密
-					{
-						tx1buf[0] = '$'; tx1buf[1]=0x0A; tx1buf[2]=0x02;
-						for(i=3;i<18;i++)
-							tx1buf[i]=0x00;
-						
-						//code_flag1=off;
-						com1sendback();
-					}
-				}
-			}
-			break;
-				
-			case 0x0B://向网位仪解密
-			{
-				if(charging_flag == on)
-				{
-					if(code_flag2==on)
-					{
-						for(i=0;i<6;i++)
-						{
-							if(CodeNum[i] == com1_rxbuf[i+2])
-							{
-								code_cnt++;
-							}
-						}
-
-						if(code_cnt==6)
-						{
-							tx1buf[0] = '$'; tx1buf[1]=0x0B; tx1buf[2]=0x01;   //解密成功，可以写入mmsi或船名
-							for(i=3;i<18;i++)
-								tx1buf[i]=0x00;
-
-							code_flag1=on;  //设置密码正确标志
-							
-							for(i=0;i<6;i++)
-								CodeNum[i] = 0xFF;
-							WriteflashCode();
-							ReadflashCode();
-							
-							code_flag2=off;      //设置网位仪未加密状态。
-							code_flag1=off;  //设置密码错误标志		
-							
-							com1sendback();
-						}
-						else
-						{
-							tx1buf[0] = '$'; tx1buf[1]=0x0B; tx1buf[2]=0x02;    //设备已加密。输入密码错误
-							for(i=3;i<18;i++)
-								tx1buf[i]=0x00;
-							
-							code_flag1=off;  //设置密码错误标志
-							com1sendback();
-						}
-						
-						code_cnt = 0;
-					}
-					else
-					{
-						tx1buf[0] = '$'; tx1buf[1]=0x0B; tx1buf[2]=0x03;    //设备未加密，询问是否需要加密
-							for(i=3;i<18;i++)
-								tx1buf[i]=0x00;
-						
-						code_flag1=off;   //默认密码错误状态
-						com1sendback();	
-					}
-				}
-			}
-			break;
-			*/
-			
 			case 0x0C:   //恢复出厂设置，清除密码
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					for(i=0;i<6;i++)
 						CodeNum[i] = 0xFF;
@@ -577,7 +469,7 @@ void Usart1GetCommand(void)  //串口1接收
 			
 			case 0x12: //发射间隔设置 /间隔计数次数固定值
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					intervalA = com1_rxbuf[6]; //发射间隔固定值
 					intervalA = intervalA << 8;
@@ -606,7 +498,7 @@ void Usart1GetCommand(void)  //串口1接收
 			
 			case 0x16: //ID激活
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					ChipUniqueID_Flash[0]=*(__IO u32 *)(0X1FFFF7F0);
 					ChipUniqueID_Flash[1]=*(__IO u32 *)(0X1FFFF7EC);
@@ -649,7 +541,7 @@ void Usart1GetCommand(void)  //串口1接收
 
 			case 0x2A: //流网或张网选择
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					if(com1_rxbuf[2] == 0x01) 
 						cogsel = 1;
@@ -667,7 +559,7 @@ void Usart1GetCommand(void)  //串口1接收
 			
 			case 0x2B: //船尺寸设置
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
 					boatlong = (com1_rxbuf[2] << 8) + com1_rxbuf[3];
 					boatwidth = com1_rxbuf[4];
@@ -688,18 +580,43 @@ void Usart1GetCommand(void)  //串口1接收
 			
 			case 0x31:  //拖网位置
 			{
-				if(charging_flag == on)
+				//if(charging_flag == on)
 				{
-					offset_len1 = (com1_rxbuf[2] << 8) + com1_rxbuf[3]; //横偏移
-					if (com1_rxbuf[4] == 0)
-						offset_len2 = com1_rxbuf[5]*-1;					//纵偏移
-					else offset_len2 = com1_rxbuf[5];
-					WriteTuoWangInfo();
-					tx1buf[0] = '$'; tx1buf[1] = 0x31; tx1buf[2] = 0x01;
-					for(i=3;i<18;i++)   tx1buf[i]=0x00;
-					com1sendback();
+							offset_len1 = (com1_rxbuf[2] << 8) + com1_rxbuf[3]; //横偏移
+							if (com1_rxbuf[4] == 0)
+								offset_len2 =((com1_rxbuf[5] << 8) + com1_rxbuf[6])*-1;					//纵偏移
+							else offset_len2 = (com1_rxbuf[5] << 8) + com1_rxbuf[6];
+							WriteTuoWangInfo();
+							tx1buf[0] = '$'; tx1buf[1] = 0x31; tx1buf[2] = 0x01;
+							for(i=3;i<18;i++)   tx1buf[i]=0x00;
+							com1sendback();
 				}
 			}
+			
+			case 0x32:  //拖网网位仪 读取
+				    //if (charging_flag == on)
+								{
+									 int offset1,offset2;
+									 offset1 = offset_len1;
+									 offset2 = offset_len2;
+									 tx1buf[0] = '$';
+									 tx1buf[1] = 0x32;
+									 tx1buf[2] = (int)offset1 >> 8;
+									 tx1buf[3] = (int)offset1;
+									 if(offset2 > 0) 
+													tx1buf[4] = 1;
+										else
+										{
+ 											tx1buf[4] = 0;
+											 offset2 = -offset2;
+										}
+										tx1buf[5] = (int)offset2 >> 8;
+										tx1buf[6] = (int)offset2;
+										for (i=7 ;i<18 ;i++)
+										    tx1buf[i] = 0x00;
+										com1sendback();
+								}
+        break;						
 			break;
 				
 			default:

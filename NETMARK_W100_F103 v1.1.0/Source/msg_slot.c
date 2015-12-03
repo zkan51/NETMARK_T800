@@ -399,8 +399,8 @@ void send_on(void)
 
 	if(task_flag2==on)	//发射条件：上次任务完成
 	{
-		if( (Get_Adc_Average(ADC_Channel_9,5) < 2500) ) //不在充电状态
-		{			
+// 		if( (Get_Adc_Average(ADC_Channel_9,5) < 2500) ) //不在充电状态
+// 		{			
 			{ //退出充电
 				charging_flag = off;
 				task_flag2 = on;
@@ -451,8 +451,8 @@ void send_on(void)
 			TIM3_Configuration();  //打开定时器T3
 			tim3_cnt=0;
 			
-		}
-		else //在充电状态
+//		}
+		/*else //在充电状态
 		{
 			{ //进入充电
 				charging_flag = on;
@@ -465,7 +465,7 @@ void send_on(void)
 				LED_ON();
 				LED_RED_ON();
 			}
-		}		
+		}*/		
 	}
 
 
