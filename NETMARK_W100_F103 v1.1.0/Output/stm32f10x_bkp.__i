@@ -1,0 +1,5 @@
+-c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork -I..\CMSIS -I..\FWlib\inc -I..\Source 
+-I F:\keil4\ARM\RV31\INC 
+-I F:\keil4\ARM\CMSIS\Include 
+-I F:\keil4\ARM\Inc\ST\STM32F10x 
+-DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD -o "..\Output\stm32f10x_bkp.o" --omf_browse "..\Output\stm32f10x_bkp.crf" --depend "..\Output\stm32f10x_bkp.d" "..\FWlib\src\stm32f10x_bkp.c"
