@@ -528,6 +528,7 @@ void Usart1GetCommand(void)  //串口1接收
 				com1sendback();
 		
 				charging_flag = on;
+				LED_RED_ON();
 			}
 			break;
 
@@ -535,7 +536,10 @@ void Usart1GetCommand(void)  //串口1接收
 			{
 				tx1buf[0] = '$'; tx1buf[1] = 0x18;
 				for(i=2;i<18;i++)   tx1buf[i]=0x00;
-				com1sendback();				
+				com1sendback();			
+				
+				charging_flag = off;
+				LED_RED_OFF();
 			}
 			break;
 
@@ -616,8 +620,7 @@ void Usart1GetCommand(void)  //串口1接收
 										    tx1buf[i] = 0x00;
 										com1sendback();
 								}
-        break;						
-			break;
+        break;				
 				
 			default:
 			break;		

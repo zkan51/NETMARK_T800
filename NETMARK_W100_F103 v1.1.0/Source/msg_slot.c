@@ -402,8 +402,8 @@ void send_on(void)
 // 		if( (Get_Adc_Average(ADC_Channel_9,5) < 2500) ) //不在充电状态
 // 		{			
 			{ //退出充电
-				charging_flag = off;
-				task_flag2 = on;
+//				charging_flag = off;
+//				task_flag2 = on;
 				
 				LED_OFF();
 				LED_RED_OFF();

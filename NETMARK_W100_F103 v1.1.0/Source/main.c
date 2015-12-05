@@ -163,7 +163,7 @@ int main(void)
 
 //	Is_Coded();    //判断是否写入过密码 --modified by Wangsi
 
-	Read_OpenOnce(); //判断是否是第一次开机，控制开机绿灯闪烁
+	//Read_OpenOnce(); //判断是否是第一次开机，控制开机绿灯闪烁
 	
 	SKY72310_Init();
 	
