@@ -1,5 +1,0 @@
--c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork -I..\CMSIS -I..\FWlib\inc -I..\Source 
--I F:\keil4\ARM\RV31\INC 
--I F:\keil4\ARM\CMSIS\Include 
--I F:\keil4\ARM\Inc\ST\STM32F10x 
--DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD -o "..\Output\flashwr.o" --omf_browse "..\Output\flashwr.crf" --depend "..\Output\flashwr.d" "..\Source\flashwr.c"
