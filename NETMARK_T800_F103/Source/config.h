@@ -19,8 +19,8 @@ typedef unsigned char  UINT8;
 #define PA_ON()        GPIO_SetBits(GPIOA, GPIO_Pin_4) //功放开
 #define PA_OFF()       GPIO_ResetBits(GPIOA, GPIO_Pin_4)  //功放关
 
-#define LED_RED_ON()       GPIO_SetBits(GPIOA, GPIO_Pin_0) //红LED开
-#define LED_RED_OFF()      GPIO_ResetBits(GPIOA, GPIO_Pin_0)  //红LED关
+#define LED_RED_ON()       GPIO_SetBits(GPIOB, GPIO_Pin_3) //红LED开
+#define LED_RED_OFF()      GPIO_ResetBits(GPIOB, GPIO_Pin_3)  //红LED关
 
 #define LED_ON()       GPIO_SetBits(GPIOB, GPIO_Pin_15) //绿LED开
 #define LED_OFF()      GPIO_ResetBits(GPIOB, GPIO_Pin_15)  //绿LED关
