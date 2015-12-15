@@ -27,7 +27,7 @@ u8 msg[45]={0};//存储AIS消息
 u8 len; //输入消息的字节数
 unsigned long MMSI=000000111; //九位码
 u8 boatnum[16]={0x60,0x34,0x93,0x8c,0x24,0x13,0x99,0x57,0x0d,0x73,0xcc,0x0c,0x31,0x00,0x00,0x00}; //船名 MINLIANYU0533@01
-u8 Vender_ID[6]= {0x21,0x31,0x2d,0x51,0x78,0x00}; //制造商号,消息24B使用 HSD-TW
+u8 Vender_ID[6]={0x21,0x31,0x2d,0x50,0xd2,0xc0}; //制造商号,消息24B使用 HSD-TMK
 u8 Call_sign[6]={0x00,0x00,0x00,0x00,0x00,0x00}; //呼号，消息24B使用
 u16 boatlong; //船长
 u8 boatwidth; //船宽
@@ -178,10 +178,11 @@ int main(void)
 	LED_RED_ON();
 	RedDelay();
 	LED_RED_OFF();
-// 	ProgramSelector();  //拨码开关
+
  //adc_level = Get_Adc_Average(ADC_Channel_9,5);
 	while (1)
   {	
+		 	ProgramSelector();  //拨码开关
 				if(charging_flag==off)   //只有在非充电状态下才发送AIS消息
 				{
 						send_on();

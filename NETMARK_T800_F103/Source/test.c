@@ -29,6 +29,7 @@ void CurrentTest(void) //电老化测试程序
 		{
 			PWR_WakeUpPinCmd(ENABLE);
 			PWR_EnterSTANDBYMode();
+			break;
 		}
 		
 // USART_SendData(USART1, 0x55);
@@ -112,6 +113,7 @@ void EjectTest(void)  //发射测试程序
 		{
 			PWR_WakeUpPinCmd(ENABLE);
 			PWR_EnterSTANDBYMode();
+			break;
 		}
 		
 // USART_SendData(USART1, 0x5A);
