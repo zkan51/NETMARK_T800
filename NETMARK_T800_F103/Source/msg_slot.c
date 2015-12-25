@@ -459,17 +459,18 @@ void send_on(void)
 			
 			TrajectoryPrediction(rev_buf,&GPS);
 			
-			task_flag1=off;
-			task_flag2=off;
-			
-			TIM3_CAM5_flag = 0;  //TIM3标记变量清零
-			TIM3_CAM3_flag= 0;
-			TIM3_CAM1_flag= 0;
+			if(flag_gps_data_available){ // 初始化阶段尚未搜索到有效GPS报文时，不发射任何数据
+				task_flag1=off;
+				task_flag2=off;
 				
-			//RTC_Init();     //初始化RTC时钟
-			TIM3_Configuration();  //打开定时器T3
-			tim3_cnt=0;
-			
+				TIM3_CAM5_flag = 0;  //TIM3标记变量清零
+				TIM3_CAM3_flag= 0;
+				TIM3_CAM1_flag= 0;
+					
+				//RTC_Init();     //初始化RTC时钟
+				TIM3_Configuration();  //打开定时器T3
+				tim3_cnt=0;
+			}			
 		}
 		else if(IsChargeMode())//在充电状态
 		{

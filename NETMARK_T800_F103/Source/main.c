@@ -20,7 +20,8 @@ unsigned long weidu_tmp;
 unsigned long direction_tmp;
 double X[len_gps_data];
 double Y[len_gps_data];
-u8 gps_data_init_cnt = 0;
+u8 gps_data_available_cnt = 0;
+u8 flag_gps_data_available = 0;
 //----------------------------------------------------//
 
 u8 msg[45]={0};//存储AIS消息
@@ -182,11 +183,11 @@ int main(void)
  //adc_level = Get_Adc_Average(ADC_Channel_9,5);
 	while (1)
   {	
-		 	ProgramSelector();  //拨码开关
-				if(charging_flag==off)   //只有在非充电状态下才发送AIS消息
-				{
-						send_on();
-				}
+	ProgramSelector();  //拨码开关
+	if(charging_flag==off)   //只有在非充电状态下才发送AIS消息
+	{					
+		send_on();
+	}
   }
 }
 

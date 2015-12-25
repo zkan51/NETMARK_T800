@@ -49,12 +49,8 @@ extern char rev_buf[UART_RX2_LEN];  // 接收缓存
 void Delay(__IO u32 nCount);
 extern double X[len_gps_data];
 extern double Y[len_gps_data];
-extern u8 gps_data_init_cnt;
-// union dds_union
-// {
-// 	unsigned long dds_data32;  //高地址存放高位，低地址存放低位。
-// 	u8 dds_data8[4];
-// };
+extern u8 gps_data_available_cnt;
+extern u8 flag_gps_data_available;
 
 //////msg21/////
 extern u8 dev_type;//助航设备类型 5bit

@@ -121,6 +121,8 @@ int TrajectoryPrediction(char * gpsMsg, GPS_INFO *GPS){
 	
 	if (buf!=NULL && status=='A')  //($GPRMC)
 	{	
+		flag_gps_data_available = 1; // 成功搜索到有效的GPS数据
+		
 		GPS->latitude  = Get_Double_Number(&buf[GetComma( 3, buf)]);
 		GPS->longitude = Get_Double_Number(&buf[GetComma( 5, buf)]);
 /*
@@ -139,44 +141,14 @@ printf("lon: %d°%f′\n",(int)(GPS->longitude/600000.0),(GPS->longitude/600000.0
 		GPS->NS = buf[GetComma(4, buf)];
 		GPS->EW = buf[GetComma(6, buf)];
 		
-		/*
+		
 		//更新经纬度信息
 		jingdu = GPS->longitude; 
-		weidu  = GPS->latitude;			
-		
-		//航速，time_o的backup挪作他用
-		if(GetComma( 7, buf)!=0){
-			sog = Get_Double_Number_sog(&buf[GetComma( 7, buf)]);
-		}
-		
-		//航向
-		Read_Flash_Cogsel();
-		
-		// 拖网，根据GPS经纬度历史数据估计航向--modified by Wangsi
-		if( is_gps_data_init==TRUE && idx_tail==(len_gps_data-1) ){
-			is_gps_data_init = FALSE; // 脱离初始化状态
-		}
-		
-		// 整理新进的数据，得到lat_tmp, lon_tmp和gps_sec
-		if(GPS -> NS == 'N'){
-			lat_tmp = weidu/600000.0; // 北纬为正
-		}else if(GPS -> NS == 'S'){
-			lat_tmp = -weidu/600000.0; // 南纬为负
-		}				
-		if(GPS -> EW == 'E'){
-			lon_tmp = jingdu/600000.0; // 转换为度，jingdu的单位是1/10000分，东经为正
-		}else if(GPS -> EW == 'W'){
-			lon_tmp = -jingdu/600000.0; // 西经为负
-		}	
-		if(strlen(buf)>12){	
-			gps_sec = ((buf[7]-'0')*10+(buf[8]-'0'))*3600 + ((buf[9]-'0')*10+(buf[10]-'0'))*60 + ((buf[11]-'0')*10+(buf[12]-'0'));	// UTC时间，单位是秒（转换为中国的时间要加8小时）
-		}else{
-			gps_sec = -1;
-		}*/
+		weidu  = GPS->latitude;	
 				
 		//航速，time_o的backup挪作他用
 		if(GetComma( 7, buf)!=0){
-			sog = Get_Double_Number_sog(&buf[GetComma( 7, buf)]);
+			sog = Get_Double_Number_sog(&buf[GetComma(7, buf)]);
 		}
 		
 		//航向
@@ -204,7 +176,7 @@ printf("lon: %d°%f′\n",(int)(GPS->longitude/600000.0),(GPS->longitude/600000.0
 			gps_sec = -1;
 		}
 		
-		gps_data_init_cnt++; // 记录已经收到的有效gps数据个数
+		gps_data_available_cnt++; // 记录已经收到的有效gps数据个数
 		
 		// 将新数据点存到gps_lat_tmp和gps_lon_tmp中，并(如有必要)丢弃最老的数据
 		// idx_medfilt最终指向数组中的最后一个有效数据
@@ -232,7 +204,6 @@ printf("lon: %d°%f′\n",(int)(GPS->longitude/600000.0),(GPS->longitude/600000.0
 		// 判断新进的数据是否满足要求，如不符合要求，则舍弃
 		is_data_valid = 0; // 默认舍弃
 		if( is_gps_data_init && idx_tail<N-1 ){ //已保存的点数不超过N-1,新进来的数据点无条件保留
-			// if(gps_data_init_cnt>20) //且至少已经获得20个有效GPS数据
 				is_data_valid = 1;
 		}else if(calSphereDist(lat_tmp,lon_tmp,gps_latitude[(idx_tail-N+1)%len_gps_data],gps_longitude[(idx_tail-N+1)%len_gps_data])>min_dist){ // 计算(x_n,y_n)和(x_n-N,y_n-N)之间的距离，若大于min_dist，则保留该点
 			is_data_valid = 1;
