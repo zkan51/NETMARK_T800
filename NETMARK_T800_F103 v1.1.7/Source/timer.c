@@ -11,7 +11,7 @@ u16 tim3_cnt;
 int tim2_cnt; //定时器2计数
 u8 swchflag;
 static u8 time4flag=0;
-
+static u16 SendDelay = 0;
 /***********************************************************
  * 函数名: TIM3_NVIC_Configuration
  * 描述  ：配置定时器T3中断
@@ -118,7 +118,7 @@ void TIM4_Configuration(void)
 		NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 		NVIC_Init(&NVIC_InitStructure);
 		
-		//TIM_Cmd(TIM4, ENABLE);
+		TIM_Cmd(TIM4, ENABLE);
 }
 
 /***********************************************************
@@ -301,6 +301,14 @@ void TIM3_IRQHandler(void)
 						
 						if(swchflag == 2)   //判断时间间隔
 						{
+								//finish = 0;	//发射结束
+							 //TIM4_Configuration();
+//							SendDelay = 350;
+//							while(SendDelay)
+//							{
+//									Delay(50000);
+//									SendDelay--;
+//							}
 							task_flag2=on;//发送任务完成
 							
 							/*if(interval_num == interval_s)
@@ -389,17 +397,23 @@ void TIM4_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
 	{
-		if(time4flag == 0)
-		{ 
-			LED_ON();
-			time4flag = 1;
-    }
-    else
-    {    
-		  LED_OFF();
-      time4flag = 0;
-	  }
-		
+//		finish++;
+//		if(finish == 8)
+//		{
+//			 task_flag2 = on;
+//				//TIM_Cmd(TIM4, DISABLE);
+//		}
+//		if(time4flag == 0)
+//		{ 
+//			LED_ON();
+//			time4flag = 1;
+//    }
+//    else
+//    {    
+//		  LED_OFF();
+//      time4flag = 0;
+//	  }
+//		
 		TIM_ClearITPendingBit(TIM4, TIM_IT_Update  );
 	}				    	    
 }

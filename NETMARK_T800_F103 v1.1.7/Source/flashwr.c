@@ -297,27 +297,30 @@ void ReadflashBoatInfo(void)
 	boatlong = *(u16*)StartAddr[7];
 	FlashAddress += 4;
 	boatwidth = *(u8*)FlashAddress;
-	
-	if ((boatlong %2))
-	{
-		boatsize_a = boatlong/2;
-		boatsize_b = boatlong/2+1;
-	}
-	else
-	{
-		boatsize_a = boatlong/2;
-		boatsize_b = boatlong/2;
-	}
-	if (boatwidth %2)
-	{
-		boatsize_c = boatwidth/2;
-		boatsize_d = boatwidth/2+1;
-	}
-	else 
-	{
-		boatsize_c = boatwidth/2;
-		boatsize_d = boatwidth/2;
-	}
+	boatsize_a = 0;
+	boatsize_b = 0;
+	boatsize_c = 0;
+	boatsize_d = 0;
+//	if ((boatlong %2))
+//	{
+//		boatsize_a = boatlong/2;
+//		boatsize_b = boatlong/2+1;
+//	}
+//	else
+//	{
+//		boatsize_a = boatlong/2;
+//		boatsize_b = boatlong/2;
+//	}
+//	if (boatwidth %2)
+//	{
+//		boatsize_c = boatwidth/2;
+//		boatsize_d = boatwidth/2+1;
+//	}
+//	else 
+//	{
+//		boatsize_c = boatwidth/2;
+//		boatsize_d = boatwidth/2;
+//	}
 }
 /***********************************************************
  * º¯ÊýÃû£ºWrite_GPS_Info

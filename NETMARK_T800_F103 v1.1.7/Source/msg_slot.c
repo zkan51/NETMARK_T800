@@ -29,7 +29,7 @@ extern u8 TIM3_CAM5_flag; //防止反复进入
 
 extern u16 tim3_cnt;
 extern u8 swchflag;
-
+static u16 SendDelay;
 #define CH_SW   2 //定义信道切换宏
 /************************* *********************************
  * ???:msg_crc
@@ -408,6 +408,14 @@ void send_on(void)
 		// 写码器供电时AD ：2165
 		if( IsWorkMode() ) //不在充电状态
 		{			
+			//Delay 4s 发射间隔5s
+			SendDelay = 350;
+			while(SendDelay)
+			{
+					Delay(50000);
+					SendDelay--;
+			}
+			
 			charge_state_num = 0;
 			{ //退出充电
 				charging_flag = off;
