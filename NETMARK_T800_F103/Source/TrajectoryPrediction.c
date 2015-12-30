@@ -355,6 +355,15 @@ printf("lon: %d¡ã%f¡ä\n",(int)(GPS->longitude/600000.0),(GPS->longitude/600000.0
 
 	}
 	
+	if(flag_gps_data_available){
+		if(jingdu<=10 || weidu<=10){	
+			// ÁÁ³ÈÉ«µÆ
+			LED_ON();
+			LED_RED_ON();
+			__breakpoint(0);
+		}
+	}
+	
 	return 0;
 }
 

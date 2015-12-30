@@ -405,17 +405,6 @@ void send_on(void)
 
 	if(task_flag2==on)	//发射条件：上次任务完成
 	{
-
-		   //采集三次AD
-// 		   adc_temp += Get_Adc_Average(ADC_Channel_9,5);
-// 		   if (adc_count == 2)
-// 					{
-// 						adc_level = adc_temp/adc_count+1;
-// 						adc_count = 0;
-// 						adc_temp = 0;
-// 					}
-// 					else adc_count++;
- 	//printf ("%d\n",Get_Adc_Average(ADC_Channel_9,5));
 		// 写码器供电时AD ：2165
 		if( IsWorkMode() ) //不在充电状态
 		{			
@@ -442,20 +431,8 @@ void send_on(void)
 			GPS_ON();
 			PLL_OFF();
 			LED_OFF();
-			//ProgramSelector();  //拨码开关
-			//-----------------		
-			//if(interval_s == intervalA) 
-			//{
-					LedFlash();
-			//}
 				
 			TIM3_OFF();	//消息生成前关闭定时器T3
-
-	// 		if((num_cnt%CH_SW)==0)// 信道切换,没发射两次AIS消息切换信道
-	// 		{
-	//  			flag_channel = (1-flag_channel); //flag_channel=(AIS_CHANNEL)(1-flag_channel);
-	// 			Write_TX_Channel();
-	// 		}
 			
 			TrajectoryPrediction(rev_buf,&GPS);
 			
@@ -470,6 +447,15 @@ void send_on(void)
 				//RTC_Init();     //初始化RTC时钟
 				TIM3_Configuration();  //打开定时器T3
 				tim3_cnt=0;
+				
+				if(weidu/600000.0 < 10 || jingdu/600000.0 < 10){
+					//红LED开
+					LED_RED_ON();
+					__breakpoint(0);
+				}else{
+					LedFlash();
+				}
+				
 			}			
 		}
 		else if(IsChargeMode())//在充电状态
