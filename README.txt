@@ -1,3 +1,8 @@
+v1.1.6 test 2015.12.30 --modified by Wangsi
+分别在TrajectoryPrediction.c和msg_slot.c文件中添加测试代码，使得：
+1、如果GPS数据有效（flag_gps_data_available==1），而经纬度太小，则亮橙色灯（红灯+绿灯），然后breakpoint
+2、如果在发射前出现经纬度太小，则亮红灯，然后breakpoint
+
 v1.1.6 2015.12.28
 红灯控制脚改为PB7
 
