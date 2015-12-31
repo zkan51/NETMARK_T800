@@ -445,6 +445,15 @@ void send_on(void)
 			TrajectoryPrediction(rev_buf,&GPS);
 			
 			if(flag_gps_data_available){ // 初始化阶段尚未搜索到有效GPS报文时，不发射任何数据
+
+				if(weidu/600000.0 < 10 || jingdu/600000.0 < 10){
+					//红LED开
+					LED_RED_ON();
+					__breakpoint(0);
+				}else{
+					LedFlash();
+				}
+				
 				task_flag1=off;
 				task_flag2=off;
 				
@@ -455,15 +464,6 @@ void send_on(void)
 				//RTC_Init();     //初始化RTC时钟
 				TIM3_Configuration();  //打开定时器T3
 				tim3_cnt=0;
-				
-				if(weidu/600000.0 < 10 || jingdu/600000.0 < 10){
-					//红LED开
-					LED_RED_ON();
-					__breakpoint(0);
-				}else{
-					LedFlash();
-				}
-				
 			}			
 		}
 		else if(IsChargeMode())//在充电状态
