@@ -303,54 +303,23 @@ void Usart1GetCommand(void)  //串口1接收
 			{
 				if(charging_flag == on)
 				{
-					if(code_flag2==on)  //加密情况
-					{
-						if(code_flag1==on)  //密码正确
-						{
-								for(i=0;i<16;i++)
-									boatnum[i] = com1_rxbuf[i+2];
-								WriteflashBoatnum();
-								ReadflashBoatnum();
-
-								tx1buf[0] = '$'; tx1buf[1] = 0x01;tx1buf[2] = 0x01; //应答 写入船名成功
-								for(i=3;i<18;i++)
-									tx1buf[i]=0x00;
-								com1sendback();
-								//code_flag1=off; //设置密码错误标志
-						}
-						else  //密码错误
-						{
-							tx1buf[0] = '$'; tx1buf[1] = 0x01; tx1buf[2] = 0x02; //应答 请先解密
-							for(i=3;i<18;i++)
-								tx1buf[i]=0x00;
-							com1sendback();
-							
-							code_flag1=off; //设置密码错误标志
-						}
-					}
-					else //未加密情况
-					{
-						for(i=0;i<16;i++)
+							for(i=0;i<16;i++)
 							boatnum[i] = com1_rxbuf[i+2];
-						WriteflashBoatnum();
-						ReadflashBoatnum();
-						
-						tx1buf[0] = '$'; tx1buf[1] = 0x01;tx1buf[2] = 0x01; //应答 写入船名成功
-						for(i=3;i<18;i++)
+							WriteflashBoatnum();
+							ReadflashBoatnum();
+
+							tx1buf[0] = '$'; tx1buf[1] = 0x01;tx1buf[2] = 0x01; //应答 写入船名成功
+							for(i=3;i<18;i++)
 							tx1buf[i]=0x00;
-						com1sendback();
-					}
+							com1sendback();
 				}
 			}
 			break;
+			
 			case 0x02://向网位仪写MMSI号
 			{
 				if(charging_flag == on)
 				{
-					if(code_flag2==on)   //加密情况
-					{
-						if(code_flag1==on)
-						{
 							MMSI=0;
 							MMSI += (com1_rxbuf[2] << 24); //+ (rxbuf[2] << 16) + (rxbuf[3] << 8) + rxbuf[4];
 							MMSI += (com1_rxbuf[3] << 16);
@@ -364,34 +333,6 @@ void Usart1GetCommand(void)  //串口1接收
 								tx1buf[i]=0x00;
 							com1sendback();
 							//code_flag1=off;  //设置密码错误标志
-						}
-						else
-						{
-							
-							tx1buf[0] = '$'; tx1buf[1] = 0x02;tx1buf[2] = 0x02; //请输入密码
-							for(i=3;i<18;i++)
-								tx1buf[i]=0x00;
-							
-							com1sendback();
-							code_flag1=off; //设置密码错误标志
-						}
-					}
-					else
-					{
-						MMSI=0;
-						MMSI += (com1_rxbuf[2] << 24); //+ (rxbuf[2] << 16) + (rxbuf[3] << 8) + rxbuf[4];
-						MMSI += (com1_rxbuf[3] << 16);
-						MMSI += (com1_rxbuf[4] << 8);
-						MMSI += com1_rxbuf[5];
-
-						WriteflashMMSI();
-						ReadflashMMSI();
-						tx1buf[0] = '$'; tx1buf[1] = 0x02;tx1buf[2] = 0x01; //应答
-						for(i=3;i<18;i++)
-							tx1buf[i]=0x00;
-						
-						com1sendback();
-					}
 				}
 			}
 			break;
@@ -424,99 +365,6 @@ void Usart1GetCommand(void)  //串口1接收
 			}
 			break;
 			
-			case 0x0C:   //恢复出厂设置，清除密码
-			{
-				if(charging_flag == on)
-				{
-					for(i=0;i<6;i++)
-						CodeNum[i] = 0xFF;
-					WriteflashCode();
-					ReadflashCode();
-					
-					code_flag2=off;      //设置网位仪未加密状态。
-					code_flag1=off;  //设置密码错误标志			
-					
-					MMSI=00000000; 
-					WriteflashMMSI();
-					ReadflashMMSI();
-				
-					for(i=10;i<16;i++)
-						boatnum[i] = 0x00;
-					WriteflashBoatnum();
-					ReadflashBoatnum();
-					
-					ReadflashMPeriod();
-					interval_num = intervalA;
-					interval_s = intervalA;
-	//				time_o = 0xffff;
-					WriteflashMPeriod();
-
-					flag_channel = 0;
-					Write_TX_Channel();
-					Read_TX_Channel();
-					
-					jingdu=0;weidu=0;
-					Write_GPS_Info();
-					Read_GPS_Info();
-					
-					tx1buf[0] = '$'; tx1buf[1] = 0x0c;tx1buf[2] = 0x01;
-					for(i=3;i<18;i++)
-						tx1buf[i]=0x00;
-					com1sendback();
-				}
-			}
-			break;
-			
-			case 0x12: //发射间隔设置 /间隔计数次数固定值
-			{
-				if(charging_flag == on)
-				{
-					intervalA = com1_rxbuf[6]; //发射间隔固定值
-					intervalA = intervalA << 8;
-					intervalA = intervalA + com1_rxbuf[7];
-					
-					gps_invalid = com1_rxbuf[8]; //gps失效时间2min
-					gps_invalid = gps_invalid << 8;
-					gps_invalid = gps_invalid + com1_rxbuf[9];
-
-		// 				intervalB = com1_rxbuf[10]; //GPS长时间失效的启动值
-		// 				intervalB = intervalB << 8;
-		// 				intervalB = intervalB + com1_rxbuf[11];
-					
-					interval_num = intervalA;
-					interval_s = intervalA;
-					WriteflashMPeriod();
-					ReadflashMPeriod();
-
-					tx1buf[0] = '$'; tx1buf[1] = 0x12;tx1buf[2] = 0x01;
-					for(i=3;i<18;i++)
-						tx1buf[i]=0x00;
-					com1sendback();
-				}
-			}
-			break;			
-			
-			case 0x16: //ID激活
-			{
-				if(charging_flag == on)
-				{
-					ChipUniqueID_Flash[0]=*(__IO u32 *)(0X1FFFF7F0);
-					ChipUniqueID_Flash[1]=*(__IO u32 *)(0X1FFFF7EC);
-					ChipUniqueID_Flash[2]=*(__IO u32 *)(0X1FFFF7E8);
-					
-					WriteflashMUID();
-					ReadflashMUID();
-					
-					activation_flag=0x0101;  //激活标志	
-					WriteflashMActivation();
-				
-					tx1buf[0] = '$'; tx1buf[1] = 0x16;
-					for(i=2;i<18;i++)   tx1buf[i]=0x00;
-					com1sendback();
-				}
-			}
-			break;
-			
 			case 0x17: //连接网位仪
 			{
 				task_flag2=off;
@@ -540,45 +388,6 @@ void Usart1GetCommand(void)  //串口1接收
 // 				charging_flag = off;
 // 				task_flag2=on;
 // 				LED_RED_OFF();				
-			}
-			break;
-
-			case 0x2A: //流网或张网选择
-			{
-				if(charging_flag == on)
-				{
-					if(com1_rxbuf[2] == 0x01) 
-						cogsel = 1;
-					else
-						cogsel = 0;
-					
-					Write_Flash_Cogsel();
-					
-					tx1buf[0] = '$'; tx1buf[1] = 0x2A; tx1buf[2] = 0x01;
-					for(i=3;i<18;i++)   tx1buf[i]=0x00;
-					com1sendback();
-				}
-			}
-			break;
-			
-			case 0x2B: //船尺寸设置
-			{
-				if(charging_flag == on)
-				{
-					boatlong = (com1_rxbuf[2] << 8) + com1_rxbuf[3];
-					boatwidth = com1_rxbuf[4];
-					
-					WriteflashBoatInfo();
-					
-// 					boatsize_a = boatlong/2;
-// 					boatsize_b = boatlong/2;
-// 					boatsize_c = boatwidth/2;
-// 					boatsize_d = boatwidth/2;
-					
-					tx1buf[0] = '$'; tx1buf[1] = 0x2B; tx1buf[2] = 0x01;
-					for(i=3;i<18;i++)   tx1buf[i]=0x00;
-					com1sendback();
-				}
 			}
 			break;
 			
