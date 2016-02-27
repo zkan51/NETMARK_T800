@@ -1,4 +1,4 @@
-v1.1.9 2016.2.26 --modified by Yangbiao
+v1.1.9（量产） 2016.2.26 --modified by Yangbiao
 添加函数SeedSet:每次启动前设置随机数种子。AD采集引脚PA1作为随机数的种子。
 发射间隔2秒到2.5秒之间随机，功放开启时间间隔大约为30s
 
