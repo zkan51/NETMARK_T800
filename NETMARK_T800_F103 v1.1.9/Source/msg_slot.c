@@ -2,7 +2,6 @@
 #include "TrajectoryPrediction.h" //--modified by Wangsi
 
 #include "stm32f10x_adc.h"
-
 extern u8 t_cnt;  //声明在exti.c
 
 static u8 msg_tmp[512]={0};  
@@ -30,6 +29,7 @@ extern u8 TIM3_CAM5_flag; //防止反复进入
 extern u16 tim3_cnt;
 extern u8 swchflag;
 static u16 SendDelay;
+extern u8 sendrandom;
 #define CH_SW   2 //定义信道切换宏
 /************************* *********************************
  * ???:msg_crc
@@ -408,11 +408,15 @@ void send_on(void)
 		// 写码器供电时AD ：2165
 		if( IsWorkMode() ) //不在充电状态
 		{			
-			//Delay 4s 发射间隔5s
-			SendDelay = 350;
+			sendrandom=rand()%50; //随机时间0-0.5s
+//			USART_SendData(USART1, (uint8_t)sendrandom);
+//			while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+				
+			//Delay 1s 发射间隔2s
+			SendDelay = 100+sendrandom;
 			while(SendDelay)
 			{
-					Delay(50000);
+					Delay(45000);//10ms
 					SendDelay--;
 			}
 			

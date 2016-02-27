@@ -224,7 +224,7 @@ void TIM3_IRQHandler(void)
 			{
 				if(TIM3_CAM1_flag == 0) 
 				{
-					if(rftime == 72)
+					if(rftime == 30)
 					{
 						rftime = 0;
 					}		

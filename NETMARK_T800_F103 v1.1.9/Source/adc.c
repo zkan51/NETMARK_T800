@@ -1,6 +1,6 @@
 #include "adc.h"
 #include "stm32f10x_adc.h"
-
+#include "stdlib.h"
 void  Adc_Init(void)
 { 	
 	ADC_InitTypeDef ADC_InitStructure; 
@@ -14,6 +14,11 @@ void  Adc_Init(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
 	GPIO_Init(GPIOB, &GPIO_InitStructure);	
 
+	//PA1 产生随机数用 
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
+	GPIO_Init(GPIOA, &GPIO_InitStructure);	
+	
 	ADC_DeInit(ADC1);  //复位ADC1,将外设 ADC1 的全部寄存器重设为缺省值
 
 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;	//ADC工作模式:ADC1和ADC2工作在独立模式
@@ -22,9 +27,8 @@ void  Adc_Init(void)
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;	//转换由软件而不是外部触发启动
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;	//ADC数据右对齐
 	ADC_InitStructure.ADC_NbrOfChannel = 1;	//顺序进行规则转换的ADC通道的数目
-	ADC_Init(ADC1, &ADC_InitStructure);	//根据ADC_InitStruct中指定的参数初始化外设ADCx的寄存器   
-
-  
+	ADC_Init(ADC1, &ADC_InitStructure);	//根据ADC_InitStruct中指定的参数初始化外设ADCx的寄存器     
+		
 	ADC_Cmd(ADC1, ENABLE);	//使能指定的ADC1
 	
 	ADC_ResetCalibration(ADC1);	//使能复位校准  
@@ -60,12 +64,7 @@ u16 Get_Adc_Average(u8 ch,u8 times)
 	{
 		temp_val+=Get_Adc(ch);
 		for(i=0;i<100;i++);
-
 	}
-	
-	
-	
-	
 	return temp_val/times;
 } 	 
 
@@ -111,6 +110,19 @@ char IsChargeMode(void)
 		return 0;
 }
 
+/****************************************************************
+ * 函数名：SeedSet
+ * 描述  : AD采集作为随机数种子
+ * 输入  : 无 
+ * 输出  : 无
+ * 调用  ：
+ *****************************************************************/
+void SeedSet(void)
+{
+		int seed;
+		seed=Get_Adc_Average(ADC_Channel_1,3);
+		srand(seed);
+}
 
 
 

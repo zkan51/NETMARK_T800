@@ -74,6 +74,7 @@ u16 intervalA;  //间隔计数次数 固定值
 u16 intervalB;  //间隔计数次数 超时值
 u8 cogsel=0; //流网或张网选择变量 默认0=流网
 u16 adc_level;
+u8 sendrandom; //发送时隙随机时间；
 int  dds_word_real[9][5] = {
 														-197 ,-197 ,-197 ,-197 ,-197 ,
 														-196 ,-190 ,-172 ,-126 ,-47 ,
@@ -179,7 +180,7 @@ int main(void)
 	LED_RED_ON();
 	RedDelay();
 	LED_RED_OFF();
-
+	SeedSet();
  //adc_level = Get_Adc_Average(ADC_Channel_9,5);
 	while (1)
   {	
