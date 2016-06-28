@@ -97,7 +97,6 @@ ais_status task_flag2=on;//·¢ËÍÈÎÎñÍê³É±êÖ¾£¬³õÖµ±ØĞëÖÃÎªon,ÓÃÀ´±êÊ¶ÊÇ·ñ·¢ÉäAISÏ
 ais_status flag_initial_slot=on;  //µÚÒ»´Î·ÖÅäÊ±Ï¶±êÖ¾£¬³õÖµÒ»¶¨¸´Î»on£¬µÚÒ»´ÎGPSÓĞĞ§ºó10s¼´·¢ÉäAISÏûÏ¢
 ais_status flag_m24=on;//ÊÇ·ñ·¢ËÍÏûÏ¢24±êÖ¾£»on--·¢ËÍÏûÏ¢18ºÍÏûÏ¢24£»off--Ö»·¢ËÍÏûÏ¢18£»
 ais_status task_flag1=off; //²¨ĞÎ·¢ÉäÖ´ĞĞ±êÖ¾£¬³õÖµÎªoff
-ais_status offsetRead = off; //Ê¾Î»±êÆ«ÒÆ¾àÀë¶ÁÈ¡
 u8 flag_channel=0;		 //ĞÅµÀÑ¡Ôñ±êÖ¾Î»,³õÊ¼»¯ÎªĞÅµÀ1
 									
 /*********************gps.c*************************/									
@@ -122,7 +121,6 @@ ais_status setting_flag=off; //ÅĞ¶ÏÊÇ·ñ´¦ÓÚĞ´Âë×´Ì¬£¬offÎª·ÇĞ´Âë×´Ì¬
 //u8 rxbuf1[4] = {0x06,0x9F,0x6B,0xC7}; //temp////////////////////
 
 u8 gps_led_on = 0; //¿ª»úÂÌµÆÂıÉÁ
-
 u8 battery; //µçÁ¿µÈ¼¶
 
 void Delay(__IO u32 nCount)
@@ -178,7 +176,6 @@ int main(void)
 	RedDelay();
 	LED_RED_OFF();
 	SeedSet();
-	offsetRead = on;
 	GPS_ON();
 	while (1)
   {	

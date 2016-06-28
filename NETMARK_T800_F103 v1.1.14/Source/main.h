@@ -93,7 +93,6 @@ extern u8 len; //输入消息的字节数
 extern u16 slot_increacement; //随机时隙增量，由随机化程序产生
 extern ais_status task_flag2;//发送任务完成标志 !!初值必须置为1,用来标识是否进入时隙号随机化函数； 
 extern ais_status task_flag1;
-extern ais_status offsetRead;
 
 //extern union dds_union dds_word_update[16][5];
 //extern char  dds_word_real_num[8][5];

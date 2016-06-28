@@ -86,7 +86,7 @@ void USART2_Config(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 	USART_Init(USART2, &USART_InitStructure);
 	
-	USART_ITConfig(USART2,USART_IT_TC,DISABLE);    //½ûÖ¹ 
+	//USART_ITConfig(USART2,USART_IT_TC,DISABLE);    //½ûÖ¹ 
 	USART_ITConfig(USART2,USART_IT_RXNE,ENABLE);  //½ûÖ¹ 
 	//USART_ITConfig(USART2,USART_IT_IDLE,ENABLE);   //¿ªÆô
 	

@@ -253,6 +253,7 @@ void USART1_printf(USART_TypeDef* USARTx, uint8_t *Data,...)
 
 void USART1_IRQHandler(void)
 {   
+	u8 i;
 	uint32_t Length = 0;//,i=0;
 	if(USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)  
 	{  
@@ -261,12 +262,8 @@ void USART1_IRQHandler(void)
 		Length = USART1->DR; //清USART_IT_IDLE标志  
 		
 		Usart1GetCommand();
-		
-// 			Length = UART_RX1_LEN - DMA_GetCurrDataCounter(DMA1_Channel5);		
-// 			for(i=0;i<Length;i++)
-// 			{
-// 				printf("%c",Uart_Rx1[i]);
-// 			}
+		for(i=0;i<18;i++)
+			com1_rxbuf[i] = 0;
 		
 		DMA1_Channel5->CNDTR = UART_RX1_LEN;//重装填,并让接收地址偏址从0开始
 		DMA_Cmd(DMA1_Channel5, ENABLE);//处理完,重开DMA   
@@ -288,13 +285,11 @@ void positionSel()
 				offset_len2 = -50; // 设置默认值50
 				WriteTuoWangInfo();
 			}
-			offsetRead = off;
 		}
 		else if(com1_rxbuf[7] == 2)//网尾
 		{
 			offset_len2 = 0;
 			WriteTuoWangInfo();
-			offsetRead = off;
 		}
 		else if(com1_rxbuf[7] == 3)//右舷
 		{
@@ -303,7 +298,6 @@ void positionSel()
 				offset_len2 = 50;
 				WriteTuoWangInfo();
 			}
-			offsetRead = off;
 		}
 }
 
@@ -397,7 +391,6 @@ void Usart1GetCommand(void)  //串口1接收
 			case 0x17: //连接网位仪
 			{
 				setting_flag = on;  //进入写码状态
-				offsetRead = on;
 				Enter_Setting();
 				
 				tx1buf[0] = '$'; 
@@ -422,7 +415,6 @@ void Usart1GetCommand(void)  //串口1接收
 				for(i=2;i<18;i++)   tx1buf[i]=0x00;
 				com1sendback();
  			setting_flag = off; //退出写码状态
-				offsetRead = off;
 				task_flag2=on;
 				LED_OFF();
 				LED_RED_OFF();			
@@ -454,8 +446,6 @@ void Usart1GetCommand(void)  //串口1接收
 			
 			case 0x32:  //拖网网位仪 读取
 			{
-				if(offsetRead==on)
-				{
 					int offset1,offset2;	
 					for(i=0;i<18;i++)
 					tx1buf[i] = 0;		
@@ -482,9 +472,6 @@ void Usart1GetCommand(void)  //串口1接收
 					for (i=8 ;i<18 ;i++)
 							tx1buf[i] = 0x00;
 					com1sendback();
-				}
-				else
-					offsetRead = off;
 			}
 			break;				
 			
