@@ -277,6 +277,7 @@ void USART1_IRQHandler(void)
 //判断t800当前插入在T81上的位置
 void positionSel()
 {
+	u8 i;
 		//T88写码插入的位置与设置的是否一致，上位机读取时com1_rxbuf[7]为0
 		if(com1_rxbuf[7] == 1)//插入的位置为左舷
 		{
@@ -285,11 +286,15 @@ void positionSel()
 				offset_len2 = -50; // 设置默认值50
 				WriteTuoWangInfo();
 			}
+			for(i=0;i<4;i++)
+				tx1buf[i+8] = MMSI >> (24 - i*8);
 		}
 		else if(com1_rxbuf[7] == 2)//网尾
 		{
 			offset_len2 = 0;
 			WriteTuoWangInfo();
+			for(i=0;i<4;i++)
+				tx1buf[i+8] = MMSI >> (24 - i*8);
 		}
 		else if(com1_rxbuf[7] == 3)//右舷
 		{
@@ -298,6 +303,8 @@ void positionSel()
 				offset_len2 = 50;
 				WriteTuoWangInfo();
 			}
+			for(i=0;i<4;i++)
+				tx1buf[i+8] = MMSI >> (24 - i*8);
 		}
 }
 
@@ -469,7 +476,7 @@ void Usart1GetCommand(void)  //串口1接收
 					tx1buf[5] = (int)offset2 >> 8;
 					tx1buf[6] = (int)offset2;
 					tx1buf[7] = com1_rxbuf[7];
-					for (i=8 ;i<18 ;i++)
+					for (i=12 ;i<18 ;i++)
 							tx1buf[i] = 0x00;
 					com1sendback();
 			}
