@@ -459,7 +459,7 @@ void Usart1GetCommand(void)  //串口1接收
 					
 					ReadTuoWangInfo();
 				 
-					positionSel();
+					//positionSel();
 					offset1 = offset_len1;
 					offset2 = offset_len2;
 					tx1buf[0] = '$';
@@ -476,6 +476,11 @@ void Usart1GetCommand(void)  //串口1接收
 					tx1buf[5] = (int)offset2 >> 8;
 					tx1buf[6] = (int)offset2;
 					tx1buf[7] = com1_rxbuf[7];
+					
+					//MMSI
+					for(i=0;i<4;i++)
+				 	tx1buf[i+8] = MMSI >> (24 - i*8);
+					
 					for (i=12 ;i<18 ;i++)
 							tx1buf[i] = 0x00;
 					com1sendback();

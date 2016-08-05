@@ -1,3 +1,6 @@
+v1.1.16 2016.8.5 --modified by Yangbiao 
+整理代码
+
 v1.1.15 2016.06.21 --modified by Yangbiao
 1、读取偏置距离时，将MMSI加到tx1buf 的8,9,10，11
 
@@ -31,6 +34,7 @@ v1.1.8 2016.1.19 --modified by Yangbiao
 v1.1.7 2015.12.30 --modified by Yangbiao
 1、将船舶尺寸设置为全0
 2、发射间隔更改为5s
+v
 
 v1.1.6 test 2015.12.30 --modified by Wangsi
 分别在TrajectoryPrediction.c和msg_slot.c文件中添加测试代码，使得：

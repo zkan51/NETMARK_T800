@@ -93,16 +93,6 @@
           <Path>datashts\arm\cortex_m3\r2p1\DUI0552A_CORTEX_M3_DGUG.PDF</Path>
         </Book>
       </Books>
-      <DllOpt>
-        <SimDllName>SARMCM3.DLL</SimDllName>
-        <SimDllArguments></SimDllArguments>
-        <SimDlgDllName>DARMSTM.DLL</SimDlgDllName>
-        <SimDlgDllArguments>-pSTM32F103C8</SimDlgDllArguments>
-        <TargetDllName>SARMCM3.DLL</TargetDllName>
-        <TargetDllArguments></TargetDllArguments>
-        <TargetDlgDllName>TARMSTM.DLL</TargetDlgDllName>
-        <TargetDlgDllArguments>-pSTM32F103C8</TargetDlgDllArguments>
-      </DllOpt>
       <DebugOpt>
         <uSim>0</uSim>
         <uTrg>1</uTrg>
@@ -121,9 +111,12 @@
         <tRfunc>0</tRfunc>
         <tRbox>1</tRbox>
         <tRtrace>1</tRtrace>
+        <sRSysVw>1</sRSysVw>
+        <tRSysVw>1</tRSysVw>
+        <tPdscDbg>1</tPdscDbg>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
-        <nTsel>7</nTsel>
+        <nTsel>6</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -456,7 +449,7 @@
 
   <Group>
     <GroupName>Source Group 1</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -468,7 +461,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>124</TopLine>
+      <TopLine>132</TopLine>
       <CurrentLine>133</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup_stm32f10x_md.s</PathWithFileName>
@@ -490,10 +483,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>16</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>17</TopLine>
-      <CurrentLine>32</CurrentLine>
+      <TopLine>44</TopLine>
+      <CurrentLine>55</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -524,7 +517,7 @@
       <Focus>0</Focus>
       <ColumnNumber>26</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>406</TopLine>
+      <TopLine>415</TopLine>
       <CurrentLine>434</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\msg_slot.c</PathWithFileName>
@@ -540,8 +533,8 @@
       <Focus>0</Focus>
       <ColumnNumber>1</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>147</TopLine>
-      <CurrentLine>157</CurrentLine>
+      <TopLine>156</TopLine>
+      <CurrentLine>185</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\timer.c</PathWithFileName>
       <FilenameWithoutPath>timer.c</FilenameWithoutPath>
@@ -634,10 +627,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>16</ColumnNumber>
+      <ColumnNumber>4</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>384</TopLine>
-      <CurrentLine>462</CurrentLine>
+      <TopLine>448</TopLine>
+      <CurrentLine>455</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\usart1.c</PathWithFileName>
       <FilenameWithoutPath>usart1.c</FilenameWithoutPath>
@@ -650,10 +643,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>42</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>73</TopLine>
-      <CurrentLine>87</CurrentLine>
+      <TopLine>1</TopLine>
+      <CurrentLine>1</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\usart2.c</PathWithFileName>
       <FilenameWithoutPath>usart2.c</FilenameWithoutPath>
@@ -666,10 +659,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>26</ColumnNumber>
+      <ColumnNumber>31</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>542</TopLine>
-      <CurrentLine>560</CurrentLine>
+      <TopLine>636</TopLine>
+      <CurrentLine>666</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\flashwr.c</PathWithFileName>
       <FilenameWithoutPath>flashwr.c</FilenameWithoutPath>
@@ -812,7 +805,7 @@
       <Focus>0</Focus>
       <ColumnNumber>45</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>8</TopLine>
+      <TopLine>6</TopLine>
       <CurrentLine>14</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\IWDG.c</PathWithFileName>
