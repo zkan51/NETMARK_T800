@@ -1,5 +1,4 @@
 #include "main.h"
-#include "TrajectoryPrediction.h" //--modified by Wangsi
 
 #include "stm32f10x_adc.h"
 extern u8 t_cnt;  //声明在exti.c
@@ -405,17 +404,6 @@ void send_on(void)
 	{
 		// 写码器供电时AD ：2165
 		//if(IsWorkMode()) //不在充电状态
-		{			
-			sendrandom=rand()%50; //随机时间0-0.5s
-			
-			//Delay 1s 发射间隔2s
-			SendDelay = 100+sendrandom;
-			while(SendDelay)
-			{
-					Delay(45000);//10ms
-					SendDelay--;
-			}
-			
 			charge_state_num = 0;
 			
 			num_cnt++;//记录执行函数的次数
@@ -424,24 +412,25 @@ void send_on(void)
 				num_slot=SEND_INTERVAL/2;
 			}
 			//------init-------
-			swchflag = 0;
-			PA_OFF();
-			PLL_OFF();
-				
-			TIM3_OFF();	//消息生成前关闭定时器T3
-			
-			TrajectoryPrediction(rev_buf,&GPS);
-			USART_Cmd(USART2,ENABLE);
 			
 			if(flag_gps_data_available){ // 初始化阶段尚未搜索到有效GPS报文时，不发射任何数据
+				LedFlash();
+				
+				sendrandom=rand()%50; //随机时间0-0.5s
 
-				if(weidu/600000.0 < 10 || jingdu/600000.0 < 10){
-					//红LED开
-					LED_RED_ON();
-					//__breakpoint(0);
-				}else{
-					LedFlash();
+				//Delay 1s 发射间隔2s
+				SendDelay = 100+sendrandom;
+				while(SendDelay)
+				{
+					Delay(45000);//10ms
+					SendDelay--;
 				}
+				
+				swchflag = 0;
+				PA_OFF();
+				PLL_OFF();
+					
+				TIM3_OFF();	//消息生成前关闭定时器T3
 				
 				task_flag1=off;
 				task_flag2=off;
@@ -454,7 +443,6 @@ void send_on(void)
 				TIM3_Configuration();  //打开定时器T3
 				tim3_cnt=0;
 			}			
-		}
 		
 		if(setting_flag == on)
 		{

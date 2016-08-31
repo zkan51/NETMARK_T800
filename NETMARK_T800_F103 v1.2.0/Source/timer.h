@@ -2,6 +2,7 @@
 #define	__TIMER_H
 
 #include "stm32f10x.h"
+#include "TrajectoryPrediction.h" //--modified by Wangsi
 
 typedef enum
 { 

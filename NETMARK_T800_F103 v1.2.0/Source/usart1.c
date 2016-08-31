@@ -21,8 +21,8 @@ static void USART1_NVIC_Configuration(void)
 {
     NVIC_InitTypeDef NVIC_InitStructure; 
     NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;	  
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0; 
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;	
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; 
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;	
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 }
@@ -255,15 +255,28 @@ void USART1_IRQHandler(void)
 {   
 	u8 i;
 	uint32_t Length = 0;//,i=0;
+	u16 crcdata,scrData; //校验生成的数据, 源校验的数据
 	if(USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)  
 	{  
 		DMA_Cmd(DMA1_Channel5,DISABLE); 
 		Length = USART1->SR;  
-		Length = USART1->DR; //清USART_IT_IDLE标志  
-		
-		Usart1GetCommand();
-		for(i=0;i<18;i++)
-			com1_rxbuf[i] = 0;
+		Length = USART1->DR; //清USART_IT_IDLE标志
+ 
+		if(com1_rxbuf[1]==0x31|com1_rxbuf[1]==0x06|com1_rxbuf[1]==0x32)	
+		{
+			scrData = (com1_rxbuf[16]<<8)+com1_rxbuf[17];
+			crcdata = msg_crc(com1_rxbuf,16);		
+			if(scrData==crcdata)
+				Usart1GetCommand();
+			for(i=0;i<18;i++)
+				com1_rxbuf[i] = 0;
+		}
+		else
+		{
+			Usart1GetCommand();
+			for(i=0;i<18;i++)
+				com1_rxbuf[i] = 0;
+		}
 		
 		DMA1_Channel5->CNDTR = UART_RX1_LEN;//重装填,并让接收地址偏址从0开始
 		DMA_Cmd(DMA1_Channel5, ENABLE);//处理完,重开DMA   
@@ -311,7 +324,13 @@ void positionSel()
 void com1sendback(void)   
 {
 	u8 i;
-	
+	u16 data;
+	if(tx1buf[1]==0x31 | tx1buf[1]==0x06 |tx1buf[1]==0x32)
+	{
+		data = msg_crc(tx1buf,16);	//CRC校验数据生成
+		tx1buf[16] = data>>8;
+		tx1buf[17] = data;
+	}
 	for(i=0;i<18;i++)	
 	{
 		USART_SendData(USART1, tx1buf[i]);
@@ -372,9 +391,11 @@ void Usart1GetCommand(void)  //串口1接收
 			{
 				if(setting_flag == on)
 				{
-					tx1buf[0] = '$'; tx1buf[1] = 0x04;
-
-					for(i=0;i<16;i++)   tx1buf[i+2]=boatnum[i];
+				tx1buf[0] = '$'; 
+				tx1buf[1] = 0x04;
+				
+				for(i=0;i<16;i++)   
+				tx1buf[i+2]=boatnum[i];
 					com1sendback();
 				}
 			}
@@ -395,6 +416,24 @@ void Usart1GetCommand(void)  //串口1接收
 			}
 			break;
 			
+			case 0x06://读取航速航向
+								tx1buf[0] = '$';
+								tx1buf[1] = 0x06;
+								tx1buf[2] = sog>>8;
+								tx1buf[3] = sog;
+								tx1buf[4] = direction>>8;
+								tx1buf[5] = direction;
+								for(i=6;i<18;i++)
+								{
+										tx1buf[i]=0;
+								}
+								//MMSI
+								for(i=0;i<4;i++)
+									tx1buf[i+8] = MMSI >> (24 - i*8);
+								tx1buf[7] = com1_rxbuf[7];
+								com1sendback();
+								break;
+								
 			case 0x17: //连接网位仪
 			{
 				setting_flag = on;  //进入写码状态
@@ -420,6 +459,7 @@ void Usart1GetCommand(void)  //串口1接收
 			{
 				tx1buf[0] = '$'; tx1buf[1] = 0x18;
 				for(i=2;i<18;i++)   tx1buf[i]=0x00;
+				tx1buf[7] = com1_rxbuf[7];
 				com1sendback();
  			setting_flag = off; //退出写码状态
 				task_flag2=on;
@@ -432,13 +472,23 @@ void Usart1GetCommand(void)  //串口1接收
 			
 			case 0x31:  //拖网位置 注入
 			{
-				if(setting_flag == on)
-				{
+//				if(setting_flag == on)
+//				{
 						offset_len1 = (com1_rxbuf[2] << 8) + com1_rxbuf[3]; //纵偏移
 						if (com1_rxbuf[4] == 0)
 							offset_len2 =((com1_rxbuf[5] << 8) + com1_rxbuf[6])*-1;					//横偏移
 						else 
 							offset_len2 = (com1_rxbuf[5] << 8) + com1_rxbuf[6];
+						
+						//计算SOG的平均程度
+						sog_sample_interval = com1_rxbuf[8];
+						cog_sample_len = com1_rxbuf[9];
+						if(sog_sample_interval<5)
+							sog_sample_interval = 5;
+						if(cog_sample_len<5)
+							cog_sample_len=5;
+
+						WriteFlash_AveragParam();						
 						
 						WriteTuoWangInfo();
 						tx1buf[0] = '$'; 
@@ -446,8 +496,9 @@ void Usart1GetCommand(void)  //串口1接收
 						tx1buf[2] = 0x01;
 						for(i=3;i<18;i++)   
 							tx1buf[i]=0x00;
+						tx1buf[7] = com1_rxbuf[7];
 						com1sendback();
-				}
+//				}
 			}
 			break;
 			
@@ -476,11 +527,9 @@ void Usart1GetCommand(void)  //串口1接收
 					tx1buf[5] = (int)offset2 >> 8;
 					tx1buf[6] = (int)offset2;
 					tx1buf[7] = com1_rxbuf[7];
-					
 					//MMSI
 					for(i=0;i<4;i++)
-				 	tx1buf[i+8] = MMSI >> (24 - i*8);
-					
+						tx1buf[i+8] = MMSI >> (24 - i*8);
 					for (i=12 ;i<18 ;i++)
 							tx1buf[i] = 0x00;
 					com1sendback();

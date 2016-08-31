@@ -26,7 +26,7 @@ void msg18(void)
 // 	}
 		
 	//SendBetteryLow();//电量低指示
-	
+//	
 	msg[0] = 0x48 ;	         //6bit消息ID:18;  2bit转发指示符：0
 	msg[1] = MMSI >>22;	     //30bit用户ID，MMSI编号
 	msg[2] = MMSI >>14;
@@ -34,13 +34,13 @@ void msg18(void)
 	msg[4] = MMSI << 2;  //低2bit备用为0
 	msg[5] = sog >> 8;  //高6bit备用为0，低2bit地面航速为0
 	msg[6] = sog;			 //地面航速为0
-	msg[7] = (jingdu >> 21)| 0x80; //最高位为位置准确度1，，低7位开始为经度的最高位
-	msg[8] = (jingdu) >> 13;   
-	msg[9] = (jingdu) >> 5;
-	msg[10] = ((jingdu << 3) & 0xF8 )+ ((weidu>>24 )& 0x07); //经度数据低5位，纬度信息高3bit.
-	msg[11] = (weidu) >> 16; 
-	msg[12] = (weidu) >> 8;
-	msg[13] = (weidu) >> 0;
+	msg[7] = (jingdu_flash >> 21)| 0x80; //最高位为位置准确度1，，低7位开始为经度的最高位
+	msg[8] = (jingdu_flash) >> 13;   
+	msg[9] = (jingdu_flash) >> 5;
+	msg[10] = ((jingdu_flash << 3) & 0xF8 )+ ((weidu_flash>>24 )& 0x07); //经度数据低5位，纬度信息高3bit.
+	msg[11] = (weidu_flash) >> 16; 
+	msg[12] = (weidu_flash) >> 8;
+	msg[13] = (weidu_flash) >> 0;
 	msg[14] = (u8)(direction >> 4); //0xE1;	   //COG:3600 高8bit
 	msg[15] = (u8)(direction << 4); //0x40 + (u8)(direction >> 5);		   //COG高4位 + 实际航向高4位 实际航向设置为全0
 	msg[16] = 0x07; //(u8)(direction << 3) + 0x07;		   //实际航向的低5位+时间戳高3bit.实际航向和时间戳都不可用

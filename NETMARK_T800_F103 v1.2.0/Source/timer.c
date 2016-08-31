@@ -23,7 +23,7 @@ void TIM3_NVIC_Configuration(void)
 {
     NVIC_InitTypeDef NVIC_InitStructure; 
     NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
@@ -101,8 +101,8 @@ void TIM4_Configuration(void)
 	
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 		
-    TIM_TimeBaseStructure.TIM_Period=4999;		 								
-    TIM_TimeBaseStructure.TIM_Prescaler= 7199;//10KHz计数，计数到5000为500ms				    
+    TIM_TimeBaseStructure.TIM_Period=24999;		 								
+    TIM_TimeBaseStructure.TIM_Prescaler= 1919;//1s				    
     TIM_TimeBaseStructure.TIM_ClockDivision=TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up;
 //		TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
@@ -112,8 +112,8 @@ void TIM4_Configuration(void)
 		NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn; //TIM4
     /*NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
 		NVIC_InitStructure.NVIC_IRQChannelSubPriority=3;*/
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority=0;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
+		NVIC_InitStructure.NVIC_IRQChannelSubPriority=1;
 		NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 		NVIC_Init(&NVIC_InitStructure);
 		
@@ -336,7 +336,6 @@ void TIM3_IRQHandler(void)
 									PWR_EnterSTANDBYMode();
 								}
 							}*/
-							
 						}
 						
 					}
@@ -394,23 +393,7 @@ void TIM4_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
 	{
-//		finish++;
-//		if(finish == 6)
-//		{
-// 			TIM_Cmd(TIM4, DISABLE);
-// 			TIM_ITConfig(TIM4, TIM_IT_Update , DISABLE);
-//			 task_flag2 = on;
-//		}
-//		if(time4flag == 0)
-//		{ 
-//			LED_ON();
-//			time4flag = 1;
-//    }
-//    else
-//    {    
-//		  LED_OFF();
-//      time4flag = 0;
-//	  }
+	 //TrajectoryPrediction(rev_buf,&GPS);
 //		
 		TIM_ClearITPendingBit(TIM4, TIM_IT_Update  );
 	}				    	    

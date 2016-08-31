@@ -10,21 +10,29 @@ double gps_lon_tmp1[N_medfilt];
 int idx_medfilt = -1;
 bool is_gps_data_init = TRUE;
 int idx_tail = -1; //一开始指向最前面的数的前面一个位置
+int idx_tail_sog = -1; //sog计算数组使用指针
+int len_tail_sog = 0 ;//sog计算数组记录数据数量，计到len_gps_data
 u32 gps_time_tag[len_gps_data];
+u32 gps_time_tag_sog[len_gps_data];//速率计算使用数组时间
 double gps_longitude[len_gps_data];
 double gps_latitude[len_gps_data];
+double gps_longitude_sog[len_gps_data];//速率计算使用数组经度
+double gps_latitude_sog[len_gps_data];//速率计算使用数组纬度
+double sog_tmp[sog_num];//存储sog，用于滤波
+unsigned int idx_sog_tag = sog_num-1;//速率储存数组tag
 double offset_len1=200, offset_len2=200, offset_len3; // 拖网位置的偏移量，单位是米，len1~len3分别代表纵向偏移量、横向偏移量和斜边长度
 double offset_len1_tmp = 0, offset_len2_tmp = 0;	  // 用于判断offset的值是否发生变化
 double offset_theta; 		// 拖网与航向的夹角
 double TP_theta = 0;		// 航行方向与正北方向的夹角
 double TP_theta_ = 0;		// 航行方向与x轴正向的夹角
-unsigned long jingdu_tmp;
-unsigned long weidu_tmp;
+double jingdu_tmp;
+double weidu_tmp;
 unsigned long direction_tmp;
 double X[len_gps_data];
 double Y[len_gps_data];
 u8 gps_data_available_cnt = 0;
 u8 flag_gps_data_available = 0;
+unsigned int cog_sample_len = 60; // 用于计算COG的数组长度默认为60
 //----------------------------------------------------//
 
 u8 msg[45]={0};//存储AIS消息
@@ -39,9 +47,14 @@ u16 boatsize_a ; //距船首
 u16 boatsize_b ; //距船尾 a+b = 船长
 u8 boatsize_c ;	//距左舷
 u8 boatsize_d ;	//距右舷 c+d = 船宽
-unsigned long jingdu=0; //GPS经度
-unsigned long weidu=0; //GPS纬度
+double jingdu=0; //GPS经度
+double weidu=0; //GPS纬度
+unsigned long jingdu_flash; //存到Flash中的GPS精度
+unsigned long weidu_flash;//存到Flash 中的GPS纬度
 unsigned int sog=0; //msg18 SOG
+double sog_double; //	存储算法估计出的SOG（浮点数）
+unsigned int sog_gps=0; // 存储由GPS模块获取的SOG
+unsigned int sog_sample_interval;
 unsigned int direction=0; //msg18 实际航向
 unsigned long gpstime=0; //gps时间
 //////msg21/////
@@ -143,8 +156,11 @@ u8 openflag; //开机
 
 u16 rftime; //每30s开一次PA
 
+unsigned long myflag;
+
 int main(void)
 {
+	unsigned int i;
 	SYS_CLK_UP();  //设置系统时钟为48M
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
@@ -161,6 +177,7 @@ int main(void)
 	
 	// watch dog
 	TIM2_Configuration();
+	//TIM4_Configuration();
 	IWDG_Init(4,625);//与分频数为64,重载值为625,溢出时间为1s
 	
 	Adc_Init();
@@ -177,6 +194,7 @@ int main(void)
 	LED_RED_OFF();
 	SeedSet();
 	GPS_ON();
+	
 	while (1)
   {	
 			ProgramSelector();  //拨码开关

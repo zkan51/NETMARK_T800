@@ -9,7 +9,7 @@ typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 /*
 FLASH使用情况：船名：0，MMSI：1； 密码：2；流刺网张网：3；时间间隔：4；
 MUID：5；激活标志：6；船长船宽：7；拖网横纵偏移：8；第一次写码时间信息：9；GPS信息：10；
-经销商名字：11
+经销商名字：11;  航速航向 平均化点数：12
 */
 
 //要写入Flash的数据的首地址--FLASH起始地址
@@ -210,41 +210,41 @@ void  ReadflashMPeriod(void) //记录发射间隔次数固定值
  * 输入  : 无
  * 输出  : 无
  ***********************************************************/
-void WriteflashMUID(void)
-{
-	u8 i;
-	FLASHStatus = FLASH_COMPLETE;
-	MemoryProgramStatus = PASSED; 
+//void WriteflashMUID(void)
+//{
+//	u8 i;
+//	FLASHStatus = FLASH_COMPLETE;
+//	MemoryProgramStatus = PASSED; 
 
-	FLASH_Unlock();	//FLASH解锁
-	FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);//清标志位
+//	FLASH_Unlock();	//FLASH解锁
+//	FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);//清标志位
 
-	NbrOfPage = (EndAddr[5] - StartAddr[5]) / FLASH_PAGE_SIZE;//页面擦除子程序
-	FLASHStatus = FLASH_ErasePage(StartAddr[5] + (FLASH_PAGE_SIZE * NbrOfPage)); 
-	FlashAddress = StartAddr[5]; 
-	for(i=0;i<=2;i++)
-	{
-		FLASHStatus = FLASH_ProgramWord(FlashAddress,ChipUniqueID_Flash[i]);  //将UID写入flash
-		FlashAddress += 4;
-	}	
-}
+//	NbrOfPage = (EndAddr[5] - StartAddr[5]) / FLASH_PAGE_SIZE;//页面擦除子程序
+//	FLASHStatus = FLASH_ErasePage(StartAddr[5] + (FLASH_PAGE_SIZE * NbrOfPage)); 
+//	FlashAddress = StartAddr[5]; 
+//	for(i=0;i<=2;i++)
+//	{
+//		FLASHStatus = FLASH_ProgramWord(FlashAddress,ChipUniqueID_Flash[i]);  //将UID写入flash
+//		FlashAddress += 4;
+//	}	
+//}
 /***********************************************************
  * 函数名：ReadflashMUID
  * 描述  ：把ChipUniqueID_Flash从Flash读入CPU
  * 输入  : 无
  * 输出  : 无
  ***********************************************************/
-void  ReadflashMUID(void) 
-{
-	u8 i;
-	FlashAddress = StartAddr[5]; 
-	for(i=0;i<=2;i++)
-	{
-		ChipUniqueID_Flash[i] = *(u32*)FlashAddress; 
-		FlashAddress += 4;
-	}
-	
-}
+//void  ReadflashMUID(void) 
+//{
+//	u8 i;
+//	FlashAddress = StartAddr[5]; 
+//	for(i=0;i<=2;i++)
+//	{
+//		ChipUniqueID_Flash[i] = *(u32*)FlashAddress; 
+//		FlashAddress += 4;
+//	}
+//	
+//}
 /***********************************************************
  * 函数名：WriteflashMActivation
  * 描述  ：把activation_flag从CPU写入Flash,用于程序激活
@@ -346,18 +346,18 @@ void Write_Flash_GPS_Info(void)
 
 	FlashAddress = StartAddr[10];
 
-	FLASHStatus = FLASH_ProgramWord(FlashAddress, jingdu);
+	FLASHStatus = FLASH_ProgramWord(FlashAddress, jingdu_flash);
 	FlashAddress = FlashAddress + 4;
-	FLASHStatus = FLASH_ProgramWord(FlashAddress, weidu);
+	FLASHStatus = FLASH_ProgramWord(FlashAddress, weidu_flash);
 	FlashAddress = FlashAddress + 4;
 	FLASHStatus = FLASH_ProgramWord(FlashAddress, sog);
 	FlashAddress = FlashAddress + 4;
 	FLASHStatus = FLASH_ProgramWord(FlashAddress, direction);
 	
-	BKP_WriteBackupRegister(BKP_DR4,(u16)(jingdu >> 16));
-	BKP_WriteBackupRegister(BKP_DR5,(u16)(weidu >> 16));
-	BKP_WriteBackupRegister(BKP_DR7,(u16)jingdu);
-	BKP_WriteBackupRegister(BKP_DR8,(u16)weidu);
+	BKP_WriteBackupRegister(BKP_DR4,(u16)(jingdu_flash >> 16));
+	BKP_WriteBackupRegister(BKP_DR5,(u16)(weidu_flash >> 16));
+	BKP_WriteBackupRegister(BKP_DR7,(u16)jingdu_flash);
+	BKP_WriteBackupRegister(BKP_DR8,(u16)weidu_flash);
 	BKP_WriteBackupRegister(BKP_DR9,sog);
 	BKP_WriteBackupRegister(BKP_DR10,direction);
 }
@@ -379,10 +379,10 @@ void Write_GPS_Info(void)
 // 	FLASHStatus = FLASH_ProgramWord(FlashAddress, weidu);
 	
 //	BKP_WriteBackupRegister(BKP_DR2,time_o);
-	BKP_WriteBackupRegister(BKP_DR4,(u16)(jingdu >> 16));
-	BKP_WriteBackupRegister(BKP_DR5,(u16)(weidu >> 16));
-	BKP_WriteBackupRegister(BKP_DR7,(u16)jingdu);
-	BKP_WriteBackupRegister(BKP_DR8,(u16)weidu);
+	BKP_WriteBackupRegister(BKP_DR4,(u16)(jingdu_flash >> 16));
+	BKP_WriteBackupRegister(BKP_DR5,(u16)(weidu_flash >> 16));
+	BKP_WriteBackupRegister(BKP_DR7,(u16)jingdu_flash);
+	BKP_WriteBackupRegister(BKP_DR8,(u16)weidu_flash);
 	BKP_WriteBackupRegister(BKP_DR9,sog);
 	BKP_WriteBackupRegister(BKP_DR10,direction);
 }
@@ -396,18 +396,18 @@ void Read_Flash_GPS_Info(void)
 {	
 	FlashAddress = StartAddr[10];
 	
-	jingdu = *(u32*)FlashAddress;
+	jingdu_flash = *(u32*)FlashAddress;
 	FlashAddress += 4;
-	weidu = *(u32*)FlashAddress;
+	weidu_flash = *(u32*)FlashAddress;
 	FlashAddress += 4;
 	sog = *(u16*)FlashAddress;
 	FlashAddress += 4;
 	direction = *(u16*)FlashAddress;
 	
-	BKP_WriteBackupRegister(BKP_DR4,(u16)(jingdu >> 16));
-	BKP_WriteBackupRegister(BKP_DR5,(u16)(weidu >> 16));
-	BKP_WriteBackupRegister(BKP_DR7,(u16)jingdu);
-	BKP_WriteBackupRegister(BKP_DR8,(u16)weidu);
+	BKP_WriteBackupRegister(BKP_DR4,(u16)(jingdu_flash >> 16));
+	BKP_WriteBackupRegister(BKP_DR5,(u16)(weidu_flash >> 16));
+	BKP_WriteBackupRegister(BKP_DR7,(u16)jingdu_flash);
+	BKP_WriteBackupRegister(BKP_DR8,(u16)weidu_flash);
 	BKP_WriteBackupRegister(BKP_DR9,sog);
 	BKP_WriteBackupRegister(BKP_DR10,direction);
 }
@@ -420,19 +420,19 @@ void Read_GPS_Info(void)
 // 	FlashAddress += 4;	
 // 	weidu = *(u32*)FlashAddress;
 	
-	jingdu = 0; weidu = 0; sog = 0; direction = 0;
-	
-	jingdu = BKP_ReadBackupRegister(BKP_DR4);  
-	jingdu = (jingdu << 16);
-	jingdu = jingdu + BKP_ReadBackupRegister(BKP_DR7);  
+//	jingdu = 0; weidu = 0; sog = 0; direction = 0;
+//	
+//	jingdu = BKP_ReadBackupRegister(BKP_DR4);  
+//	jingdu = (jingdu_flash << 16);
+//	jingdu_flash = jingdu_flash + BKP_ReadBackupRegister(BKP_DR7);  
 
-	weidu = BKP_ReadBackupRegister(BKP_DR5);  
-	weidu = (weidu << 16);
-	weidu = weidu + BKP_ReadBackupRegister(BKP_DR8);	
-	
-	sog = BKP_ReadBackupRegister(BKP_DR9);
-	
-	direction = BKP_ReadBackupRegister(BKP_DR10);
+//	weidu = BKP_ReadBackupRegister(BKP_DR5);  
+//	weidu = (weidu_flash << 16);
+//	weidu = weidu + BKP_ReadBackupRegister(BKP_DR8);	
+//	
+//	sog = BKP_ReadBackupRegister(BKP_DR9);
+//	
+//	direction = BKP_ReadBackupRegister(BKP_DR10);
 }
 /***********************************************************
  * 函数名：Write_GPS_Info
@@ -579,6 +579,7 @@ void ReadFlashInit(void)
 	
 	ReadFlash_Time();
 	ReadFlash_AgencyName();
+	ReadFlash_AverageParam();
 //	interval_s=*(u16*)StartAddr[4]; //读入发射时间间隔interval_s
 // 	USART_SendData(USART1, interval_s>>8);
 // 	while (!(USART1->SR & USART_FLAG_TXE));
@@ -684,6 +685,36 @@ void ReadFlash_AgencyName()
 	for(i=0;i<16;i++)
 	{
 		AgencyName[i] = *(u8*)(StartAddr[11]+i);
+	}
+}
+
+
+//航速航向平均化点数 存储
+void WriteFlash_AveragParam()
+{
+	u8 i;
+	FLASHStatus = FLASH_COMPLETE;
+	MemoryProgramStatus = PASSED; 
+	FLASH_Unlock();	//FLASH解锁
+	FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);//清标志位
+	
+	NbrOfPage = (EndAddr[5] - StartAddr[5]) / FLASH_PAGE_SIZE; //页面擦除子程序
+	FLASHStatus = FLASH_ErasePage(StartAddr[5] + (FLASH_PAGE_SIZE * NbrOfPage));
+	FlashAddress = StartAddr[5];
+	FLASHStatus = FLASH_ProgramWord(FlashAddress,sog_sample_interval);
+	FlashAddress = FlashAddress + 4;
+	FLASHStatus = FLASH_ProgramWord(FlashAddress,cog_sample_len);
+}
+
+void ReadFlash_AverageParam()
+{
+	sog_sample_interval = *(u8*)(StartAddr[5]);
+	cog_sample_len = *(u8*)(StartAddr[5]+4);
+	if(sog_sample_interval==0x000000ff)
+	{
+// 		sog_sample_interval = 15;
+// 	 cog_sample_len = 60;
+// 		WriteFlash_AveragParam();
 	}
 }
 

@@ -20,7 +20,7 @@ static void USART2_NVIC_Configuration(void)
 		NVIC_InitTypeDef NVIC_InitStructure; 												
 		NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;	  
 		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;//4; 
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;	
+		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;	
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 		NVIC_Init(&NVIC_InitStructure);
 }
@@ -87,36 +87,70 @@ void USART2_Config(void)
 	USART_Init(USART2, &USART_InitStructure);
 	
 	//USART_ITConfig(USART2,USART_IT_TC,DISABLE);    //禁止 
-	USART_ITConfig(USART2,USART_IT_RXNE,ENABLE);  //禁止 
-	//USART_ITConfig(USART2,USART_IT_IDLE,ENABLE);   //开启
+	//USART_ITConfig(USART2,USART_IT_RXNE,ENABLE);  //禁止 
+	USART_ITConfig(USART2,USART_IT_IDLE,ENABLE);   //开启
 	
- //USART_DMACmd(USART2,USART_DMAReq_Rx,ENABLE);	//采用DMA方式接收  
+ USART_DMACmd(USART2,USART_DMAReq_Rx,ENABLE);	//采用DMA方式接收  
 	
 	USART_Cmd(USART2, ENABLE);
 }
 
+//void USART2_IRQHandler(void)
+//{   
+//	if(USART2->SR & USART_FLAG_RXNE)//接收中断
+//	{
+//		USART2->SR &= ~USART_FLAG_RXNE;	//清零	
+//		ch = USART2->DR & 0x1ff;
+//		
+//		if(('$'==ch)&&(0==gps_flag))
+//		{
+//			rev_start = 1;
+//		}
+//		if (1==rev_start)  //标志位为1，开始接收
+//		{
+// 			rev_buf[GPS_RecNum++] = ch;  //字符存到数组中
+
+//			if ('\n'==ch)     //如果接收到换行
+//			{
+//				rev_buf[GPS_RecNum] = '\0';
+//				rev_start = 0;
+//				GPS_RecNum = 0;			
+//				USART_Cmd(USART2, DISABLE);
+//			}
+//		}		
+//	}
+//}
 void USART2_IRQHandler(void)
 {   
-	if(USART2->SR & USART_FLAG_RXNE)//接收中断
-	{
-		USART2->SR &= ~USART_FLAG_RXNE;	//清零	
-		ch = USART2->DR & 0x1ff;
+    uint32_t i = 0;
+	int idx = 0;
+	
+    if(USART_GetITStatus(USART2, USART_IT_IDLE) != RESET) // 如果为空闲总线中断
+    {  
+					DMA_Cmd(DMA1_Channel6,DISABLE); // 关闭DMA，防止处理期间有数据				
+					
+					i = USART2->SR;
+					i = USART2->DR; //清USART_IT_IDLE标志		
+					
+	   	TrajectoryPrediction(rev_buf,&GPS);
+		//printf("准备关GPS，此时DMA1待传输数据个数为：%d\n\n", DMA_GetCurrDataCounter(DMA1_Channel6));
+		//GPS_OFF();
+		//GPS_RMC_Parse(rev_buf,&GPS);			
+		//printf("刚执行完GPS_RMC_Parse()函数，此时DMA1待传输数据个数为：%d\n\n", DMA_GetCurrDataCounter(DMA1_Channel6));
 		
-		if(('$'==ch)&&(0==gps_flag))
-		{
-			rev_start = 1;
-		}
-		if (1==rev_start)  //标志位为1，开始接收
-		{
- 			rev_buf[GPS_RecNum++] = ch;  //字符存到数组中
+	    DMA1_Channel6->CNDTR = UART_RX2_LEN; // 设置DMA传输字节个数
+	   	DMA_Cmd(DMA1_Channel6, ENABLE);      // 开始DMA传输	
+		//GPS_ON();
+    }
+	
+	if(USART_GetITStatus(USART2, USART_IT_PE | USART_IT_FE | USART_IT_NE) != RESET)//出错
+    {
+        USART_ClearITPendingBit(USART2, USART_IT_PE | USART_IT_FE | USART_IT_NE);
+    }
 
-			if ('\n'==ch)     //如果接收到换行
-			{
-				rev_buf[GPS_RecNum] = '\0';
-				rev_start = 0;
-				GPS_RecNum = 0;			
-				USART_Cmd(USART2, DISABLE);
-			}
-		}		
-	}
+	//DMA1_Channel6->CNDTR = UART_RX2_LEN;//重装填,并让接收地址偏址从0开始
+	
+	USART_ClearITPendingBit(USART2, USART_IT_IDLE);
+    __nop();
+
 }

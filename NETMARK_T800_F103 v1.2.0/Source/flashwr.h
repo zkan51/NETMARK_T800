@@ -55,4 +55,6 @@ void ReadFlash_Time(void);
 void WriteFlash_AgencyName(void);
 void ReadFlash_AgencyName(void);
 
+void WriteFlash_AveragParam(void);
+void ReadFlash_AverageParam(void);
 #endif /* __FLASHWR_H */

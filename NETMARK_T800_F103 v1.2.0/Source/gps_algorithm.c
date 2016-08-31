@@ -205,24 +205,3 @@ u8 GetComma(u8 num, char *str)
 	return 0;	 
 }
 
-
-/*void RefreshGPS(void) //收集GPS信息
-{
-				GPS->latitude = Get_Double_Number(&buf[GetComma( 3, buf)]);
-				GPS->longitude = Get_Double_Number(&buf[GetComma( 5, buf)]);
-
-				GPS->second = ((buf[7]-'0')*10+(buf[8]-'0'))*3600/2 + ((buf[9]-'0')*10+(buf[10]-'0'))*60/2 + ((buf[11]-'0')*10+(buf[12]-'0'))/2;	//以2秒为单位
-
-				GPS->NS = buf[GetComma(4, buf)];
-				GPS->EW = buf[GetComma(6, buf)];
-		
-				if(GPS -> NS == 'N') GPS->latitude  = GPS->latitude*1;  //纬度
-				else GPS->latitude  = GPS->latitude*(-1);
-				
-				if(GPS -> EW == 'E') GPS->longitude = GPS->longitude*1;	//经度
-				else GPS->longitude  = GPS->longitude*(-1);
-
-				jingdu=GPS->longitude; //更新经纬度信息
-				weidu=GPS->latitude;
-}*/
-

@@ -28,9 +28,11 @@
 
 // 存储一定长度的GPS经纬度历史数据，用于航向估计--modified by Wangsi
 #define PI 3.141592653589793
-#define len_gps_data 60
+#define len_gps_data 60 // 存储的GPS数据数组长度
 #define N_medfilt 7
 #define UART_RX2_LEN 400
+#define sog_num 5
+
 extern double gps_lat_tmp[N_medfilt];
 extern double gps_lon_tmp[N_medfilt];
 extern double gps_lat_tmp1[N_medfilt];
@@ -38,16 +40,24 @@ extern double gps_lon_tmp1[N_medfilt];
 extern int idx_medfilt;
 extern bool is_gps_data_init;
 extern int idx_tail; // 指示数组的尾部，即最新的数据所在的位置
+extern int idx_tail_sog;//sog计算使用数组指针，指向最新数据
+extern int len_tail_sog;//sog计算数组记录数据数量，计到len_gps_data
 extern u32 gps_time_tag[len_gps_data];
 extern double gps_longitude[len_gps_data];
 extern double gps_latitude[len_gps_data];
+extern double gps_longitude_sog[len_gps_data];//速率计算使用数组
+extern double gps_latitude_sog[len_gps_data];//速率计算使用数组
+extern u32 gps_time_tag_sog[len_gps_data];//速率计算使用数组
+extern double sog_tmp[sog_num];//存储sog，用于滤波
+extern unsigned int idx_sog_tag;//速率储存数组tag
+extern unsigned int sog_sample_interval;//速率计算采样点间隔
 extern double offset_len1, offset_len2, offset_len3; // 拖网位置的偏移量
 extern double offset_len1_tmp, offset_len2_tmp;	
 extern double offset_theta; // 拖网与航向的夹角
 extern double TP_theta;		// 航行方向与正北方向的夹角
 extern double TP_theta_;	// 航行方向与x轴正向的夹角
-extern unsigned long jingdu_tmp;
-extern unsigned long weidu_tmp;
+extern double jingdu_tmp;
+extern double weidu_tmp;
 extern unsigned long direction_tmp;
 extern char rev_buf[UART_RX2_LEN];  // 接收缓存
 void Delay(__IO u32 nCount);
@@ -55,6 +65,7 @@ extern double X[len_gps_data];
 extern double Y[len_gps_data];
 extern u8 gps_data_available_cnt;
 extern u8 flag_gps_data_available;
+extern unsigned int cog_sample_len; // 用于估计COG的数组长度，可由上位机实时修改
 
 //////msg21/////
 extern u8 dev_type;//助航设备类型 5bit
@@ -82,9 +93,13 @@ extern u16 boatsize_a;
 extern u16 boatsize_b; 
 extern u8 boatsize_c;	
 extern u8 boatsize_d;	
-extern unsigned long jingdu;
-extern unsigned long weidu;
+extern double jingdu;
+extern double weidu;
+extern unsigned long jingdu_flash; //存到Flash中的GPS精度
+extern unsigned long weidu_flash;//存到Flash 中的GPS纬度
 extern unsigned int sog;
+extern double sog_double; // 输出浮点的sog估计值
+extern unsigned int sog_gps;
 extern unsigned int direction;
 extern unsigned long gpstime;
 extern u8 msg[45];

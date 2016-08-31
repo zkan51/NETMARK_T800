@@ -51,7 +51,7 @@ long myRound(double x){
 		x = -x;
 		tmpx = (long)x;
 		
-		if((-x-tmpx)>=0.5)
+		if((x-tmpx)>=0.5)
 			return -(tmpx+1);
 		else
 			return -tmpx;
@@ -82,6 +82,59 @@ double gpsDataMedfilt(double* x, int N){
 	// 冒泡排序
 	bubbleSort(x,N);
 	return x[N/2];	
+}
+
+double aver(double *a, int len){//数组求平均
+    double r = 0;
+    int i;
+    for(i = 0; i < len; i ++)
+        r += a[i];
+			r/=len;
+    return r;
+}
+
+// 航速估计
+void SOGPrediction(double lat_tmp,double lon_tmp,u32 gps_sec,int lenA){
+	double dist;
+	unsigned int idx_start;
+	idx_tail_sog = (idx_tail_sog+1)%len_gps_data;
+	if(len_tail_sog < len_gps_data){
+		len_tail_sog = len_tail_sog +1;
+	}
+
+	gps_latitude_sog[idx_tail_sog]  = lat_tmp;
+	gps_longitude_sog[idx_tail_sog] = lon_tmp;		
+	gps_time_tag_sog[idx_tail_sog]  = gps_sec;
+	
+		if(len_tail_sog - 1 < lenA){
+			lenA = len_tail_sog - 1;
+		}
+		idx_start = (len_gps_data+idx_tail_sog-lenA)%len_gps_data;
+		dist = calSphereDist(gps_latitude_sog[idx_tail_sog],gps_longitude_sog[idx_tail_sog], gps_latitude_sog[idx_start], gps_longitude_sog[idx_start]);
+		sog_double = dist/( (86400 + gps_time_tag_sog[idx_tail_sog] - gps_time_tag_sog[idx_start])%86400 ) * 19.43845;//3.6/1.852*10
+		
+		sog_tmp[idx_sog_tag] = sog_double;
+		idx_sog_tag = (idx_sog_tag + 1) % sog_num;
+		
+		if(len_tail_sog > 20){
+		//采用均值滤波		
+		if(len_tail_sog-1 < sog_num){
+			sog_double = aver(sog_tmp,len_tail_sog-1);
+		}else{
+			sog_double = aver(sog_tmp,sog_num);
+		}
+		
+		// 强制转换成整数(AIS消息18中航速用10bit表示，单位0.1节，范围0~102.2节，102.3节不可用)	
+		sog = (unsigned int)sog_double; 
+		if(sog>1022){
+			sog = 1022; // 超过102.2节的按102.2节算
+		}
+		
+// 		printf("sec: %d  sog_gps: %d  sog:%f\n",gps_sec, sog_gps, sog_double);
+// 		printf("t: %d lat: %f lon: %f\n",gps_time_tag_sog[idx_tail_sog],gps_latitude_sog[idx_tail_sog],gps_longitude_sog[idx_tail_sog]);
+// 		printf("idx_XY-lenA : T: %d  lat: %f lon: %f\n",gps_time_tag_sog[idx_start],gps_latitude_sog[idx_start],gps_longitude_sog[idx_start]);
+// 		printf("dist: %f  delta_t: %d\n",dist, (86400+gps_time_tag_sog[idx_tail_sog]-gps_time_tag_sog[idx_start])%86400);
+	}
 }
 
 void CalNetLocation(double theta, double theta_){
@@ -119,24 +172,27 @@ void CalNetLocation(double theta, double theta_){
 int TrajectoryPrediction(char * gpsMsg, GPS_INFO *GPS){
 	// 根据GPS经纬度信息进行航迹航向的预测，并将新的数据写入flash
 	//--modified by Wangsi	
-	int idx = 0; // 临时循环用
+	int idx = 0; 											// 临时循环用
 	int idx_t = 0;
-	int idx_start = 0; // gps数据数组的起始点
+	int idx_start = 0; 								// gps数据数组的起始点
 	int idx_XY = 0;
 	int offset_len_changed = 0;
 	
-	unsigned int len_XY = 0; // 有效数据的长度（小于等于len_gps_data）
-	double lon0,lat0; // 每次估计航迹时所用的起始点的坐标
-	u32 gps_sec; // UTC时间，单位是秒（转换为中国的时间要加8小时）
+	unsigned int num_cog_sample = 0;
+	unsigned int len_XY = 0; 					// 有效数据的长度（小于等于len_gps_data）
+	double lon0,lat0; 								// 每次估计航迹时所用的起始点的坐标
+	u32 gps_sec; 											// UTC时间，单位是秒（转换为中国的时间要加8小时）
 	double tmp, mat1_11, mat1_12, mat1_21, mat1_22, mat2_11, mat2_12, mat2_21, mat2_22, mat3_11, mat3_21;
 	double A11;
 	double theta, theta_;
+	
+	int lenA;
 	
 	double dist_tmp;
 	double lon_tmp, lat_tmp;
 	u8 is_data_valid = 0; // 判断新进的数据点是否有效
 	u8 N = 7;
-	double min_dist = 42.0; // 最新进数据点和之前N点的最小距离，如果小于该值，则舍弃这个点
+	double min_dist = 42.0; // 用于COG计算的最新进数据点和之前N点的最小距离，如果小于该值，则表明区域内采样太密集，舍弃这个点
 	char *buf;
 	
 	u8 status;
@@ -145,7 +201,7 @@ int TrajectoryPrediction(char * gpsMsg, GPS_INFO *GPS){
 	flag_gps_data_available = 0;
 	
 	buf = strstr(gpsMsg,"$GPRMC"); // buf指针指向消息的最前端，如果不存在，则为NULL
-	idxcomma2 = GetComma(2,buf);	
+	idxcomma2 = GetComma(2,buf);
 			
 	if(buf!=NULL && idxcomma2!=0){
 		status = buf[idxcomma2]; // 语句中第二个逗号后的字符
@@ -168,30 +224,17 @@ int TrajectoryPrediction(char * gpsMsg, GPS_INFO *GPS){
 		
 		GPS->latitude  = Get_Double_Number(&buf[GetComma( 3, buf)]);
 		GPS->longitude = Get_Double_Number(&buf[GetComma( 5, buf)]);
-/*
-gps_sec = ((buf[7]-'0')*10+(buf[8]-'0'))*3600 + ((buf[9]-'0')*10+(buf[10]-'0'))*60 + ((buf[11]-'0')*10+(buf[12]-'0'));	// UTC时间，单位是秒（转换为中国的时间要加8小时）
-printf("sec: %d\n",gps_sec);
-printf("lat: %d°%f′\n",(int)(GPS->latitude/600000.0),(GPS->latitude/600000.0-(int)(GPS->latitude/600000.0))*60.0);
-printf("lon: %d°%f′\n",(int)(GPS->longitude/600000.0),(GPS->longitude/600000.0-(int)(GPS->longitude/600000.0))*60.0);
-*/
 		
-		if(strlen(buf)>12){
-			GPS->second = ((buf[7]-'0')*10+(buf[8]-'0'))*3600/2 + ((buf[9]-'0')*10+(buf[10]-'0'))*60/2 + ((buf[11]-'0')*10+(buf[12]-'0'))/2;	//以2秒为单位
-		}else{
-			GPS->second = -1;
-		}
-
 		GPS->NS = buf[GetComma(4, buf)];
 		GPS->EW = buf[GetComma(6, buf)];
-		
-		
+				
 		//更新经纬度信息
 		jingdu = GPS->longitude; 
-		weidu  = GPS->latitude;	
-				
+		weidu  = GPS->latitude;
+		
 		//航速，time_o的backup挪作他用
 		if(GetComma( 7, buf)!=0){
-			sog = Get_Double_Number_sog(&buf[GetComma(7, buf)]);
+			sog_gps = Get_Double_Number_sog(&buf[GetComma(7, buf)]);
 		}
 		
 		//航向
@@ -244,6 +287,11 @@ printf("lon: %d°%f′\n",(int)(GPS->longitude/600000.0),(GPS->longitude/600000.0
 		lat_tmp = gpsDataMedfilt(gps_lat_tmp1,idx_medfilt+1);
 		lon_tmp = gpsDataMedfilt(gps_lon_tmp1,idx_medfilt+1); 
 		
+		//不管数据是否有效，都进入速率计算
+		
+			lenA = sog_sample_interval;
+			SOGPrediction(lat_tmp,lon_tmp,gps_sec,lenA);
+		
 		// 判断新进的数据是否满足要求，如不符合要求，则舍弃
 		is_data_valid = 0; // 默认舍弃
 		if( is_gps_data_init && idx_tail<N-1 ){ //已保存的点数不超过N-1,新进来的数据点无条件保留
@@ -268,24 +316,34 @@ printf("lon: %d°%f′\n",(int)(GPS->longitude/600000.0),(GPS->longitude/600000.0
 				idx_start = (idx_tail+1)%len_gps_data;					
 			}
 			
-			idx_t = idx_start; // 在这个版本的程序里，所有保存下来的点都是有效点
+			// 选取用于COG计算的数据的起始点（有效数据不足cog_sample_len个时，所有数据都用上；否则，用于计算的数据个数为cog_sample_len）
+			if(cog_sample_len > len_gps_data){
+				cog_sample_len = len_gps_data;	// 确保用于计算的数据点个数不超过所有可用的数据点个数
+			}
+			num_cog_sample = 0;
+			for( idx_t = idx_tail; idx_t != idx_start; idx_t = ( (idx_t-1) + len_gps_data ) % len_gps_data ){
+				num_cog_sample++;
+				if(num_cog_sample==cog_sample_len){
+					break;
+				}
+			}
 			
-			lon0 = gps_longitude[idx_t]; // 以第一个有效数据作为坐标原点
-			lat0 = gps_latitude[idx_t];
+			// 以第一个有效数据作为坐标原点
+			lon0 = gps_longitude[idx_t]; 
+			lat0 = gps_latitude [idx_t];
 
+			// 从第一个参与计算的有效数据开始，计算后续的数据点的坐标
 			while(idx_t!=idx_tail){
 				X[idx_XY] = sign(gps_longitude[idx_t]-lon0)*calSphereDist(lat0,lon0,lat0,gps_longitude[idx_t]); // 近似计算X坐标					
 				Y[idx_XY] = sign(gps_latitude[idx_t]-lat0)*calSphereDist(lat0,lon0,gps_latitude[idx_t],lon0);   // 近似计算Y坐标
-				idx_XY = (idx_XY+1)%len_gps_data;
-				idx_t = (idx_t+1)%len_gps_data;
+				idx_XY 		= (idx_XY+1)%len_gps_data;
+				idx_t 		= (idx_t+1)%len_gps_data;
 			}
 			X[idx_XY] = sign(gps_longitude[idx_t]-lon0)*calSphereDist(lat0,lon0,lat0,gps_longitude[idx_t]);
 			Y[idx_XY] = sign(gps_latitude[idx_t]-lat0)*calSphereDist(lat0,lon0,gps_latitude[idx_t],lon0);
-			len_XY = idx_XY + 1;
+			len_XY 		= idx_XY + 1;
 			
-			if(len_XY>=3){ // 至少需要3个数据才能估计	
-				//printf("len_XY>=3\n");						
-			
+			if(len_XY>=3){ // 至少需要3个数据才能估计
 				// 计算mat1 = X.'*X (2*2 matrix)
 				mat1_11 = 0;
 				mat1_12 = 0;
@@ -390,13 +448,23 @@ printf("lon: %d°%f′\n",(int)(GPS->longitude/600000.0),(GPS->longitude/600000.0
 
 	}
 	
-	if(flag_gps_data_available){
-		if(jingdu<=10 || weidu<=10){	
-			// 亮橙色灯
-			LED_ON();
-			LED_RED_ON();
-			__breakpoint(0);
-		}
+	// 将计算出的double型经纬度转换为AIS消息18需要的整型，并存储到flash中。如果为南纬或者西经，则将经纬度（负数）改为补码（28位）
+	if(jingdu<0)
+	{
+		jingdu_flash = (unsigned long)(268435456 + jingdu);  //pow(2,28) = 268435456
+	}
+	else
+	{
+		jingdu_flash = (unsigned long)jingdu;
+	}
+	
+	if(weidu <0)
+	{
+		weidu_flash = (unsigned long)(268435456 + weidu);
+	}
+	else
+	{
+		weidu_flash = (unsigned long)weidu;
 	}
 	
 	return 0;
