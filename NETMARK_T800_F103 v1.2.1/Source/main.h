@@ -159,7 +159,7 @@ extern u32 ChipUniqueID_Flash[3];   //芯片96bit UID
 
 extern u8 rxflag; //发送标志,防止发送时进入中断
 extern u8 status;	//用于判断接收/发送状态
-extern u8 tx1buf[31]; 	   //串口1发送缓冲
+extern u8 tx1buf[32]; 	   //串口1发送缓冲
 
 extern u8 gps_led_on;
 extern u8 GPS_RecNum;

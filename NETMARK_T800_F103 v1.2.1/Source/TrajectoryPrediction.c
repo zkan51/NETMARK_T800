@@ -222,6 +222,10 @@ int TrajectoryPrediction(char * gpsMsg, GPS_INFO *GPS){
 		offset_len1_tmp = offset_len1;
 		offset_len2_tmp = offset_len2;
 		
+		//获取时间,上报给T90
+		GPS->UTCTime = Get_Double_Number_time(&buf[GetComma( 1, buf)]);
+		GPS->UTCDate = Get_Double_Number_time(&buf[GetComma( 9, buf)]);
+		
 		GPS->latitude  = Get_Double_Number(&buf[GetComma( 3, buf)]);
 		GPS->longitude = Get_Double_Number(&buf[GetComma( 5, buf)]);
 		

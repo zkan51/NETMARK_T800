@@ -8,7 +8,7 @@
 
 #define UART_RX1_LEN     100 
 static u8 com1_rxbuf[UART_RX1_LEN];  //串口1接收缓存
-u8 tx1buf[31]={0}; 	   //串口1发送缓冲
+u8 tx1buf[32]={0}; 	   //串口1发送缓冲
 extern u8 swchflag;
 
  /***********************************************************
@@ -268,16 +268,14 @@ void USART1_IRQHandler(void)
 			crcdata = msg_crc(com1_rxbuf,16);		
 			if(scrData==crcdata)
 				Usart1GetCommand();
-			for(i=0;i<18;i++)
-				com1_rxbuf[i] = 0;
 		}
 		else
 		{
 			Usart1GetCommand();
-			for(i=0;i<18;i++)
-				com1_rxbuf[i] = 0;
 		}
 		
+		for(i=0;i<31;i++)
+			com1_rxbuf[i] = 0;
 		DMA1_Channel5->CNDTR = UART_RX1_LEN;//重装填,并让接收地址偏址从0开始
 		DMA_Cmd(DMA1_Channel5, ENABLE);//处理完,重开DMA   
 		
@@ -325,17 +323,41 @@ void com1sendback(void)
 {
 	u8 i;
 	u16 data;
-	if(tx1buf[1]==0x31 | tx1buf[1]==0x06 |tx1buf[1]==0x32)
+	if(tx1buf[1]==0x06) //航速航向，GPS信息，时间
+	{
+		data = msg_crc(tx1buf,30);	//CRC校验数据生成
+		tx1buf[30] = data>>8;
+		tx1buf[31] = data;	
+		
+		for(i=0;i<32;i++)	
+		{
+			USART_SendData(USART1, tx1buf[i]);
+			while (!(USART1->SR & USART_FLAG_TXE)) ;
+		}
+	}
+	else if(tx1buf[1]==0x31 | tx1buf[1]==0x32)
 	{
 		data = msg_crc(tx1buf,16);	//CRC校验数据生成
 		tx1buf[16] = data>>8;
-		tx1buf[17] = data;
+		tx1buf[17] = data;	
+		
+		for(i=0;i<18;i++)	
+		{
+			USART_SendData(USART1, tx1buf[i]);
+			while (!(USART1->SR & USART_FLAG_TXE)) ;
+		}
 	}
-	for(i=0;i<18;i++)	
+	else
 	{
-		USART_SendData(USART1, tx1buf[i]);
-		while (!(USART1->SR & USART_FLAG_TXE)) ;
+		for(i=0;i<18;i++)	
+		{
+			USART_SendData(USART1, tx1buf[i]);
+			while (!(USART1->SR & USART_FLAG_TXE)) ;
+		}
 	}
+	
+	for(i=0;i<32;i++)
+		tx1buf[i] = 0;
 }
 
 
@@ -417,21 +439,38 @@ void Usart1GetCommand(void)  //串口1接收
 			break;
 			
 			case 0x06://读取航速航向
+							{
 								tx1buf[0] = '$';
 								tx1buf[1] = 0x06;
 								tx1buf[2] = sog>>8;
 								tx1buf[3] = sog;
 								tx1buf[4] = direction>>8;
 								tx1buf[5] = direction;
-								for(i=6;i<18;i++)
-								{
-										tx1buf[i]=0;
-								}
-								//MMSI
+								
+								//MMSI 8~11
 								for(i=0;i<4;i++)
 									tx1buf[i+8] = MMSI >> (24 - i*8);
+								
+								//GPS信息 12~26
+								tx1buf[12] = GPS.EW;
+			
+								for(i=0;i<4;i++)
+									tx1buf[i+13] = GPS.longitude>>(24 - i*8); //经度 13~16
+	
+								tx1buf[17] = GPS.NS;
+			
+								for(i=0;i<4;i++)
+									tx1buf[i+18] = GPS.latitude>>(24 - i*8); //纬度 18~21
+								
+								for(i=0;i<4;i++)
+									tx1buf[i+22] = GPS.UTCTime>>(24 - i*8); //UTC时间 22~25
+									
+								for(i=0;i<4;i++)
+									tx1buf[i+26] = GPS.UTCDate>>(24 - i*8); //UTC日期 26~29
+								
 								tx1buf[7] = com1_rxbuf[7];
 								com1sendback();
+							}
 								break;
 								
 			case 0x17: //连接网位仪

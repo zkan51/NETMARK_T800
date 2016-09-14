@@ -15,6 +15,8 @@ typedef struct{
 typedef struct{
 	long  latitude;  //经度
 	long  longitude; //纬度
+	long UTCTime; //UTC时间
+	long UTCDate; //UTC日期
 // 	int     latitude_Degree;	//度
 // 	int		latitude_Cent;		//分
 // 	int   	latitude_Second;    //秒
