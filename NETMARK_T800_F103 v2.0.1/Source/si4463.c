@@ -519,16 +519,11 @@ void SI446X_SEND_PACKET( u8 *txbuffer, u16 size, u8 channel, u8 condition,\
 		while( size -- ) { SPI_ExchangeByte( *txbuffer++ ); }
 		SI_CSN_HIGH;
 		
-			//PA 发送60次开一次功放，间隔约2分钟
-			if(rftime == 60)
-			{
-				rftime = 0;
-			}		
-					
+			//PA 间隔约30s
 			if(rftime == 0)
 			{
 				PA_ON(); //打开功放
-			}
+			}		
 			
 		delay_ms(4);
 		// 设置发射参数

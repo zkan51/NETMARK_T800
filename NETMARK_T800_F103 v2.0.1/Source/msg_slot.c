@@ -282,7 +282,11 @@ void send_on(void)
 			//发送AIS消息
 			//
 			AISMessageSend();
-			rftime++;
+			if(rftime==0)
+			{
+				rftime=14;
+			}
+			rftime--; //功放开启计数
 		}			
 
 }

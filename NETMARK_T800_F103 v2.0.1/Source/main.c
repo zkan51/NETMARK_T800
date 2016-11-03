@@ -113,7 +113,7 @@ u8 AgencyName[16]={0}; //经销商名字
 
 extern u8 swchflag;
 
-u16 rftime; //每30s开一次PA
+u16 rftime = 0; //每30s开一次PA
 
 unsigned long myflag;
 
@@ -147,7 +147,6 @@ int main(void)
 	SPI1IO_Init();			      // IO模拟SPI
 	SI4463_IOSET();	
 	SeedSet(); 		//随机数种子
-	
 	while (1)
  {	
 			ProgramSelector();  //拨码开关 
